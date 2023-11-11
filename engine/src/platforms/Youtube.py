@@ -80,7 +80,7 @@ class Youtube(Platform):
             position += 1
 
         for video in videos:
-            pprint(video)
+            print(video)
 
         return videos
 

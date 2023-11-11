@@ -57,7 +57,6 @@ def createProflie(email, password, userId):
     wait(0.5)
     monkey.space()
 
-
     # Ads
     wait(1)
     monkey.next()
@@ -78,8 +77,6 @@ def createProflie(email, password, userId):
     wait(0.5)
     monkey.enter()
 
-# load /Users/hussam/Desktop/Projects/ACEAP/engine/data/sessions/googles/Local
-# in json and print
 import json
 import constants
 import pandas as pd

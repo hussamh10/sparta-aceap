@@ -1,7 +1,6 @@
 import sqlite3
 import sys
 from time import sleep
-from unittest import findTestCases
 from users.User import User
 from platforms.Facebook import Facebook
 from uuid import uuid4 as uid

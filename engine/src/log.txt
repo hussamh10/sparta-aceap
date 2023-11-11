@@ -1,0 +1,5 @@
+file: log.py, line: 16, func: log, code: ['    caller = inspect.stack()\n'] -> file: JuicySMS.py, line: 21, func: get_number, code: ["        log('error')\n"] -> file: smstest.py, line: 5, func: <module>, code: ['phone.get_number()\n'] ->  => error 
+log.py•log•16•caller = inspect.stack() -> JuicySMS.py•get_number•21•log('error') -> smstest.py•<module>•5•phone.get_number() ->  => error 
+smstest.py•<module>•5•phone.get_number() -> JuicySMS.py•get_number•21•log('error') -> log.py•log•16•caller = inspect.stack() ->  => error 
+smstest.py • <module> • 5 • phone.get_number() -> JuicySMS.py • get_number • 21 • log('error') -> log.py • log • 16 • caller = inspect.stack() ->  => error 
+smstest.py • <module> • 5 • phone.get_number() ► JuicySMS.py • get_number • 21 • log('error') ► log.py • log • 16 • caller = inspect.stack() ►  => error 

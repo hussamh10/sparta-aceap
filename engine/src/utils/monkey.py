@@ -35,6 +35,14 @@ def back():
     gui.hotkey('shift', 'tab')
     pause()
 
+def arrow_down():
+    gui.press('down')
+    pause()
+
+def arrow_up():
+    gui.press('up')
+    pause()
+
 def save():
     gui.hotkey('cmd', 's')
     pause()

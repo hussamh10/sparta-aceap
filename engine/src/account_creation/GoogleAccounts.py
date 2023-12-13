@@ -1,10 +1,11 @@
 import sys
 sys.path.append('..')
 from browser.Selenium import Browser
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
 from utils.log import debug
 from utils.util import wait; 
 import utils.monkey as monkey
-from JuicySMS import juicy
 
 class GoogleAccount():
     def __init__(self, email, firstName, lastName, password, sms):
@@ -13,9 +14,10 @@ class GoogleAccount():
         self.lastName = lastName
         self.password = password
         self.sms = sms
+        self.id = email.split('@')[0]
 
     def loadBrowser(self):
-        session = 'new_account/'
+        session = f'{self.id}'
         browser = Browser(session)
         driver = browser.getDriver()
         wait(2)
@@ -28,6 +30,7 @@ class GoogleAccount():
         driver = self.loadBrowser()
         driver.get('https://accounts.google.com/signin')
         wait(2)
+        return
         monkey.type(self.email)
         wait(1)
         monkey.enter()
@@ -36,10 +39,19 @@ class GoogleAccount():
         wait(1)
         monkey.enter()
 
+
         # get url of the page
+        wait(2)
         url = driver.current_url
-        if 'challenge' not in url:
-            raise Exception('Did not get phone verification')
+        debug(url)
+        if 'speedbump' in url:
+            btn = driver.find_element(By.XPATH, "//input[@name='confirm']")
+            btn.click()
+
+            wait(2)
+            return
+
+        input('CHECK PHONE NUMBER???')
         
 
         area, phone_number = self.sms.get_number()
@@ -82,7 +94,3 @@ class GoogleAccount():
 
 
 
-
-sms = juicy()
-account = GoogleAccount('aceapxp001@spartaaceap.com', 'Anthony', 'Banthony', 'hehehahahoho', sms)
-account.create()

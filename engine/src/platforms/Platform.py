@@ -26,22 +26,19 @@ class Platform(ABC):
 
     def loadBrowser(self):
         path = constants.SESSIONS_PATH
-        if not os.path.exists(f'{path}{self.platform}'):
-            os.mkdir(f'{path}{self.platform}')
+        # if not os.path.exists(f'{path}{self.platform}'):
+        #     os.mkdir(f'{path}{self.platform}')
 
         id = self.userId
 
-        if not os.path.exists(f'{path}{self.platform}/{id}'):
-            print('Not logged in')
+        path = os.path.join(constants.SESSIONS_PATH, id)
+
+        if not os.path.exists(path):
+            raise Exception(f'User {id} does not exist')
             os.mkdir(f'{path}{self.platform}/{id}')
 
-        # TODO change this to the new way
-        session = f'{self.platform}/{id}'
-
-        print(session)
-        browser = Browser(session)
+        browser = Browser(path)
         self.driver = browser.getDriver()
-        debug('Browser loaded')
         return self.driver
 
     def quit(self):
@@ -52,6 +49,13 @@ class Platform(ABC):
 
     def loadPage(self, url):
         self.driver.get(url)
+    
+    def chromeLogin(self):
+        try:
+            element = self.driver.find_element("id", "credential_picker_container")
+            element.click()
+        except:
+            pass
     
     def scrollDown(self):
         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")

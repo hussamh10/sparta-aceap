@@ -8,7 +8,6 @@ from uuid import uuid4 as uid
 import pickle as pkl
 import os
 from constants import *
-from utils.util import wait; 
 
 from utils.log import debug, info, error
 
@@ -38,14 +37,7 @@ class Signal():
 
     def save(self):
         # TODO: create table
-        conn = sqlite3.connect('../aceap.db')
-        # list tables
-        c = conn.cursor()
-        c.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        tables = c.fetchall()
-        tables = [table[0] for table in tables]
-        print(tables)
-
+        conn = sqlite3.connect('aceap.db')
         c = conn.cursor()
         c.execute("INSERT INTO signals VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
             self.id, self.action, self.content, self.time, self.user, self.platform, self.info, self.experiment
@@ -57,10 +49,8 @@ class Signal():
 # state = {'num': 0, 'action': '', 'topic': '', 'info': '', 'time': 0}
 
 class User:
-    def __init__(self, platform, chromeId, experiment_id):
+    def __init__(self, platform):
         self.Platform = platform
-        self.chromeId = chromeId
-        self.experiment_id = experiment_id
         self.signals = []
         pass
 
@@ -69,29 +59,52 @@ class User:
             action = action,
             content = content,
             info = info,
-            user = self.chromeId,
-            platform = self.Platform.__name__, 
+            user = self.info['id'],
+            platform = self.info['platform'], 
             experiment = experiment
         )
         debug('Signal: %s, %s, %s, %s' % (signal.action, signal.content, signal.info, signal.experiment))
         self.signals.append(signal.id)
 
+    def create(self, platform, firstname, lastname,
+        email, username, password, phone, DOB, gender):
+        
+        if self._userExists(username, platform):
+            error('User already exists')
+            return
+        self.info = dict()
+        self.info["id"] = str(uid())
+        self.info["platform"] = platform
+        self.info["firstname"] = firstname
+        self.info["lastname"] = lastname
+        self.info["email"] = email
+        self.info["username"] = username
+        self.info["password"] = password
+        self.info["phone"] = phone
+        self.info["DOB"] = DOB
+        self.info["gender"] = gender
+        self.createUser()
+
     def chromeSignIn(self):
-        self.platform = self.Platform(self.chromeId)
+        self.platform = self.Platform(self.info['id'])
+
         self.platform.loadBrowser()
         self.platform.loadWebsite()
-        wait(2)
+        input()
 
-    def chromeSignUp(self):
-        self.platform = self.Platform(self.chromeId)
+    def createUser(self):
+        self.platform = self.Platform(self.info['id'])
+
         self.platform.loadBrowser()
         self.platform.loadWebsite()
-        wait(4)
-        self.platform.chromeLogin()
-        wait(7)
-        debug('ADD SIGNAL')
-        # self.addSignal('ChromeSignUp', self.chromeId, info=f'chrome', experiment=self.experiment_id)
-
+        if self.platform.createUser(self.info):
+            debug('User created')
+        else:
+            raise Exception('User not created')
+        
+        self.save()
+        debug('User saved')
+        self.addSignal('create', 'user', '')
 
     def loadUser(self, id="", username=""):
         self._loadInfo(id, username)

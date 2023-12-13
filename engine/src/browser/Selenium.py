@@ -1,6 +1,7 @@
 import sys
 from tkinter import W; sys.path.append('..')
 from utils.log import *
+import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -29,7 +30,7 @@ class Browser:
         return self.driver
 
     def loadSession(self):
-        path = f'{constants.SESSIONS_PATH}{self.session}'
+        path = os.path.join(constants.SESSIONS_PATH, self.session)
         debug(path)
         self.options.add_argument(f"user-data-dir={path}") 
 

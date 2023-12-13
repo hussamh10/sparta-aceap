@@ -1,0 +1,15 @@
+{
+    "action": "like",
+    "topic": "basketball",
+    "date": "12/12/24",
+    "experiment_name": "like_basketball_12/12/24",
+    "experiment_id": "xp1",
+    "create_users": true,
+    "treatments": 3,
+    "controls": 3,
+    "platforms": [
+        "Reddit",
+        "Twitter"
+    ],
+    "email_template": "xp1aceap"
+}

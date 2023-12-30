@@ -5,11 +5,12 @@
     "experiment_name": "like_basketball_12/12/24",
     "experiment_id": "xp1",
     "create_users": true,
-    "treatments": 3,
-    "controls": 3,
+    "treatments": 2,
+    "controls": 2,
     "platforms": [
         "Reddit",
         "Twitter"
     ],
-    "email_template": "xp1aceap"
+    "email_template": "xp1aceap",
+    "database": "experiment.db"
 }

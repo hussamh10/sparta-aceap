@@ -1,13 +1,24 @@
+from colorama import Fore, Back, Style
 import inspect
 
 def error(e):
-    print("ERROR: ", e)
+    # get caller funciton name  
+    curname = inspect.currentframe()
+    calframe = inspect.getouterframes(curname, 2)
+    f = calframe[1][3]
+    print(Fore.GREEN + f"{f}:" + Fore.RED + f"\t {e}")
 
 def info(e):
-    print("INFO: ", e)
+    curname = inspect.currentframe()
+    calframe = inspect.getouterframes(curname, 2)
+    f = calframe[1][3]
+    print(Fore.GREEN + f"{f}:" + Fore.YELLOW + f"\t {e}")
 
 def debug(e):
-    print("DEBUG: ", e)
+    curname = inspect.currentframe()
+    calframe = inspect.getouterframes(curname, 2)
+    f = calframe[1][3]
+    print(Fore.GREEN + f"{f}:" + Fore.WHITE + f"\t {e}")
 
 def log(e, p=True):
     f = open('log.txt', 'a')

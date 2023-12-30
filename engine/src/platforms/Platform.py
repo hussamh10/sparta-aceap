@@ -1,15 +1,18 @@
 from datetime import datetime
 import sys
 from time import sleep
-from src.constants import USERS_PATH
+from constants import USERS_PATH
 from utils.log import pprint, error; sys.path.append('..')
+from utils.util import wait
 # from browser.Selenium import Browser
 from browser.Selenium import Browser
+from selenium.webdriver.common.by import By
 import os
 import constants
 import pickle as pkl
 from abc import ABC, abstractclassmethod
 from utils.log import debug, info, error
+from utils import monkey
 
 
 # https://piprogramming.org/articles/How-to-make-Selenium-undetectable-and-stealth--7-Ways-to-hide-your-Bot-Automation-from-Detection-0000000017.html
@@ -37,7 +40,21 @@ class Platform(ABC):
             raise Exception(f'User {id} does not exist')
             os.mkdir(f'{path}{self.platform}/{id}')
 
-        browser = Browser(path)
+        try:
+            browser = Browser(id)
+        except Exception as e:
+            error(e)
+            error('Could not load browser')
+            debug('Trying again...')
+            try:
+                wait(3)
+                browser = Browser(id)
+            except Exception as e:
+                error('Could not load browser again')
+                raise e
+
+
+
         self.driver = browser.getDriver()
         return self.driver
 
@@ -52,11 +69,15 @@ class Platform(ABC):
     
     def chromeLogin(self):
         try:
-            element = self.driver.find_element("id", "credential_picker_container")
-            element.click()
-        except:
+            wait(1)
+            monkey.click(x=2300, y=280)
+        except Exception as e:
+            print(e)
             pass
-    
+
+    def getPageDump(self):
+        return self.driver.page_source
+
     def scrollDown(self):
         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     
@@ -102,8 +123,14 @@ class Platform(ABC):
     #         print(results)
     #     return results
 
-    def close(self):
+    def closeDriver(self):
+        info('Closing browser')
+        self.driver.stop_client()
         self.driver.close()
+        self.driver.quit()
+
+    def close(self):
+        self.b
 
     def loggedIn(self):
         error('Not implemented -- sleeping')
@@ -142,7 +169,7 @@ class Platform(ABC):
         pass
 
     # @abstractclassmethod
-    def openPost(self):
+    def openPost(self, already_opened=[]):
         pass
 
     def stayOnPost(self, time=5):

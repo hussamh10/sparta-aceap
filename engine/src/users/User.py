@@ -7,22 +7,13 @@ from unittest import findTestCases
 from uuid import uuid4 as uid
 import pickle as pkl
 import os
+from account_creation.GoogleAccounts import GoogleAccount
 from constants import *
 from utils.util import wait; 
 
 from utils.log import debug, info, error
 
 sys.path.append('..')
-
-
-class Observation():
-    def __init__(self):
-        pass
-
-    # def dumpHTML(self, html):
-    #     self.htmlid = str(uid())
-    #     # save the html of the page
-    #     pkl.dump(html, open(self.htmlid + '.html', 'wb'))
 
 class Signal():
     def __init__(self, action, content, user, platform, info, experiment):
@@ -38,13 +29,12 @@ class Signal():
 
     def save(self):
         # TODO: create table
-        conn = sqlite3.connect('../aceap.db')
+        conn = sqlite3.connect(DATABASE)
         # list tables
         c = conn.cursor()
         c.execute("SELECT name FROM sqlite_master WHERE type='table';")
         tables = c.fetchall()
         tables = [table[0] for table in tables]
-        print(tables)
 
         c = conn.cursor()
         c.execute("INSERT INTO signals VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
@@ -59,9 +49,12 @@ class Signal():
 class User:
     def __init__(self, platform, chromeId, experiment_id):
         self.Platform = platform
+        self.userId = chromeId
         self.chromeId = chromeId
         self.experiment_id = experiment_id
         self.signals = []
+
+        self.info = {'platform': self.Platform.__name__, 'id': self.chromeId}
         pass
 
     def addSignal(self, action, content, info='', experiment=''):
@@ -77,6 +70,7 @@ class User:
         self.signals.append(signal.id)
 
     def chromeSignIn(self):
+        debug(f'SIGNING IN: {self.chromeId}')
         self.platform = self.Platform(self.chromeId)
         self.platform.loadBrowser()
         self.platform.loadWebsite()
@@ -92,9 +86,8 @@ class User:
         debug('ADD SIGNAL')
         # self.addSignal('ChromeSignUp', self.chromeId, info=f'chrome', experiment=self.experiment_id)
 
-
     def loadUser(self, id="", username=""):
-        self._loadInfo(id, username)
+        # self._loadInfo(id, username)
         debug(self.info)
         if self.info['platform'] != self.Platform.__name__:
             raise Exception('Platform mismatch')
@@ -127,7 +120,7 @@ class User:
         raise Exception("No id or username provided")
         
     def _userExists(self, username, platform):
-        conn = sqlite3.connect('aceap.db')
+        conn = sqlite3.connect(DATABASE)
         c = conn.cursor()
         df = pd.read_sql_query("SELECT * FROM profiles WHERE username = '%s' AND platform = '%s'" % (username, platform), conn)
         conn.close()
@@ -135,7 +128,7 @@ class User:
 
         
     def _getUserByUsername(self, username):
-        conn = sqlite3.connect('aceap.db')
+        conn = sqlite3.connect(DATABASE)
         c = conn.cursor()
         df = pd.read_sql_query("SELECT * FROM profiles WHERE username = '%s'" % (username), conn)
         conn.close()
@@ -158,7 +151,7 @@ class User:
   
 
     def getOpenedPosts(self):
-        conn = sqlite3.connect('aceap.db')
+        conn = sqlite3.connect(DATABASE)
         df = pd.read_sql_query("SELECT * FROM signals WHERE action = 'open-post' AND user = '%s'" % (self.info['id']), conn)
         conn.close()
         posts = list(df['content'])
@@ -172,9 +165,11 @@ class User:
         self.search(topic)
         debug('Term searched')
         opened_posts = self.getOpenedPosts()
-        print(opened_posts)
+        debug(opened_posts)
         post = self.platform.openPost(already_opened=opened_posts)
-        self.addSignal('open-post', post['id'], info=f'searched-{topic}', experiment=experiment)
+        self.addSignal('open-post', str(post['id']), info=f'searched-{topic}', experiment=experiment)
+        debug(f"OPENED POST: {post}")
+        return post
 
 
     def readComments(self, topic, experiment):
@@ -184,7 +179,6 @@ class User:
         debug('Term searched')
         post, opened = self.platform.readComments()
 
-        print(opened)
         self.addPosts(opened, str(uid()))
 
         for open in opened:
@@ -204,7 +198,6 @@ class User:
         debug('Term searched')
         post, opened = self.platform.likePost()
 
-        print(opened)
         self.addPosts(opened, str(uid()))
 
         for open in opened:
@@ -212,6 +205,8 @@ class User:
 
         if post != None:
             self.addSignal('like-post', post['id'], info=f'searched-{topic}', experiment=experiment)
+
+        return opened
 
 
     def dislikePost(self, topic, experiment):
@@ -237,7 +232,6 @@ class User:
         TODO: Not join private groups
         TODO if search
         """
-        print(self.platform)
         sleep(2)
         self.search(topic)
         debug('Term searched')
@@ -247,38 +241,46 @@ class User:
         pass
 
     def addCommunities(self, community, id):
-        conn = sqlite3.connect("aceap.db")
+        conn = sqlite3.connect(DATABASE)
         table = f'{self.info["platform"]}-communities'
         df = pd.DataFrame(community)
-        print(df)
         df['record-id'] = id
         df.to_sql(table, conn, if_exists="append")
         conn.close()
 
     def addPosts(self, posts, id):
-        conn = sqlite3.connect("aceap.db")
+        conn = sqlite3.connect(DATABASE)
         table = f'{self.info["platform"]}-posts'
         df = pd.DataFrame(posts)
-        print(df)
         df['record-id'] = id
         df.to_sql(table, conn, if_exists="append")
         conn.close()
 
+    def closeDriver(self):
+        self.platform.closeDriver()
+
+
     def recordHome(self, experiment, scrolls=5, posts_n=10):
         self.goHome()
         sleep(2)
-        posts = self.getPosts(scrolls, posts_n)
-        id = str(uid())
-        self.addSignal('record', 'home', info=f'{id}', experiment=experiment)
-        self.addPosts(posts, id)
+        posts = self.getPosts(scrolls)
+        return posts
+        # self.addSignal('record', 'home', info=f'{id}', experiment=experiment)
+        # self.addPosts(posts, id)
 
     def goHome(self):
         self.platform.getHomePage()
         sleep(3.2)
 
+    def checkSignin(self):
+        self.chromeSignIn()
+        is_signedin =  self.platform.loggedIn()
+        self.platform.closeDriver()
+        return is_signedin
+
     def save(self):
         # save profile to sqlite table
-        conn = sqlite3.connect("aceap.db")
+        conn = sqlite3.connect(DATABASE)
         df = pd.DataFrame.from_dict(self.info, orient='index').T
         df = df.set_index('id')
         df.to_sql("profiles", conn, if_exists="append")
@@ -288,14 +290,14 @@ class User:
         """
         Scrolls down the page and gets all the posts
         """
-        #CHANGE
-        scrolls = scrolls
+        posts = []
         
         for i in range(scrolls):
             self.platform.scrollDown()
+            posts += self.platform.getPagePosts(posts_n)
             sleep(2)
 
-        posts = self.platform.getPagePosts(posts_n)
+
         return posts
 
     def search(self, key):
@@ -304,14 +306,14 @@ class User:
 
 
     # def getReadCommentPosts(self):
-    #     conn = sqlite3.connect('aceap.db')
+    #     conn = sqlite3.connect(DATABASE)
     #     df = pd.read_sql_query("SELECT * FROM signals WHERE action = 'read-comments' AND user = '%s'" % (self.info['id']), conn)
     #     conn.close()
     #     posts = list(df['content'])
     #     return posts
 
     def getCommentedPosts(self):
-        conn = sqlite3.connect('aceap.db')
+        conn = sqlite3.connect(DATABASE)
         df = pd.read_sql_query("SELECT * FROM signals WHERE action = 'comment' AND user = '%s'" % (self.info['id']), conn)
         conn.close()
         posts = list(df['content'])

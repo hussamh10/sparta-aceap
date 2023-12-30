@@ -1,0 +1,35 @@
+{
+    "treatments": [
+        {
+            "action": "like",
+            "topic": "biden"
+        },
+        {
+            "action": "open",
+            "topic": "biden"
+        },
+        {
+            "action": "open",
+            "topic": "trump"
+        },
+        {
+            "action": "like",
+            "topic": "trump"
+        },
+        {
+            "action": "",
+            "topic": ""
+        }
+    ],
+    "replication": 2,
+    "days": 2,
+    "experiment_id": "xp4",
+    "platforms": [
+        "Reddit",
+        "Twitter",
+        "Youtube"
+    ],
+    "email_template": "xp4aceap",
+    "database": "experiment.db",
+    "path": "C:\\Users\\hussa\\Desktop\\sparta-aceap\\engine\\exp4\\data"
+}

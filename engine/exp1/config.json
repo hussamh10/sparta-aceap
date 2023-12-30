@@ -1,0 +1,26 @@
+{
+    "treatments": [
+        {
+            "action": "like",
+            "topic": "football"
+        },
+        {
+            "action": "open",
+            "topic": "football"
+        },
+        {
+            "action": "",
+            "topic": ""
+        }
+    ],
+    "replication": 2,
+    "days": 2,
+    "experiment_id": "xp2",
+    "platforms": [
+        "Reddit",
+        "Twitter"
+    ],
+    "email_template": "xp2aceap",
+    "database": "experiment.db",
+    "path": "C:\\Users\\hussa\\Desktop\\sparta-aceap\\engine\\exp1\\data"
+}

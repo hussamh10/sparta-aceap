@@ -1,6 +1,7 @@
 # importing the requests library
 import requests
 from utils.log import debug, info, error, log
+from utils.util import wait
 
 class juicy():
 
@@ -11,26 +12,23 @@ class juicy():
         self.code = None
         self.area = 'USA'
 
-
     def get_balance(self):
         request = f'https://juicysms.com/api/getbalance?key={self.key}'
         response = requests.get(request)
         debug(response.text)
-    
 
     def get_number_from_order(self, order_number):
-        return '07774403727'
-        raise Exception("Not implemented") 
-        pass
-        # request = f'https://juicysms.com/api/getnumber?key={self.key}&order={order_number}'
-        # response = requests.get(request)
-        # debug(response.text)
-        # return response.text
+        request = f'https://juicysms.com/api/getnumber?key={self.key}&order={order_number}'
+        response = requests.get(request)
+        debug(response.text)
+        return response.text
 
     def reuse_number(self):
         pass
 
     def get_code(self):
+        debug("key: " + self.key)
+        debug("order_number: " + self.order_number)
         request = f'https://juicysms.com/api/getsms?key={self.key}&orderId={self.order_number}'
         response = requests.get(request)
         debug(response.text)
@@ -40,18 +38,36 @@ class juicy():
         if 'WAITING' in response.text:
             return -1
 
-        debug(self.code)
         self.code = response.text.split('_')[-1]
+        if '-' in self.code:
+            self.code = self.code.split('-')[1]
+        debug(self.code)
         return self.code
 
-    def get_number(self):
-        if self.phone_number != None:
-            try: 
-                number = self.reuse_number()
-                return number
-            except:
-                log(f"Phone number {self.phone_number} is not available for reuse")
+    def skip_number(self):
+        request = f'https://juicysms.com/api/skipnumber?key={self.key}&orderId={self.order_number}'
+        debug(request)
+        response = requests.get(request)
+        debug(response.text)
 
+
+    def get_number(self):
+        output = self.get_phone_number()
+        while output == 'already open':
+            debug('already open')
+            self.skip_number()
+            output = self.get_phone_number()
+            wait(5)
+
+        if output == 'no balance':
+             raise Exception("No balance")
+
+        if output == 'success':
+            return self.area, self.phone_number
+
+
+
+    def get_phone_number(self):
         debug("Trying US")
         request = f'https://juicysms.com/api/makeorder?key={self.key}&serviceId=1&country={self.area}'
         response = requests.get(request)
@@ -77,13 +93,11 @@ class juicy():
         
         if 'ORDER_ALREADY_OPEN_' in response.text:
             self.order_number = response.text.split('_')[-1]
-            self.phone_number = self.get_number_from_order(self.order_number)
-            return self.area, self.phone_number
+            return 'already open'
         
         if 'NO_BALANCE' in response.text:
-            raise Exception("No balance")
+            return 'no balance'
 
-        self.order_number = response.text.split('_')[1]
+        self.order_number = response.text.split('_')[2]
         self.phone_number = response.text.split('_')[-1]
-
-        return self.area, self.phone_number
+        return 'success'

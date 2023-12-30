@@ -1,6 +1,8 @@
 from abc import abstractclassmethod
 import sys
 from tkinter import W
+from tqdm import tqdm
+from utils.util import wait
 sys.path.append('..')
 from platforms.Platform import Platform
 from selenium.webdriver.common.keys import Keys
@@ -12,6 +14,8 @@ from datetime import datetime
 import pandas as pd
 import constants
 import utils.monkey as monkey
+import sqlite3 as sql
+import os
 
 import praw
 
@@ -30,27 +34,86 @@ class RedditPRAW():
             client_secret="2D1FD6YhH0RjTKWaRJmV3ChW_Bw",
             user_agent="sparta_bot",
         )
+
+        self.db_path = os.path.join(constants.DATA_DIR, 'praw.db')
+        
+    def isPostInDB(self, id):
+        db = sql.connect(self.db_path)
+        query = f"SELECT * FROM posts WHERE id='{id}'"
+        res = db.execute(query).fetchall()
+        db.close()
+        if len(res) == 0:
+            return False
+        else:
+            return True
+
+    def addPostToDB(self, post):
+        post['title'] = post['title'].replace("'", "")
+        post['selftext'] = post['selftext'].replace("'", "")
+
+        query = f"INSERT INTO posts VALUES ('{post['id']}', '{post['title']}', '{post['author']}', '{post['subreddit']}', '{post['num_comments']}', '{post['score']}', '{post['selftext']}', '{post['url']}')"
+        db = sql.connect(self.db_path)
+        db.execute(query)
+        db.commit()
+        db.close()
+
+    def getPostFromDB(self, id):
+        query = f"SELECT * FROM posts WHERE id='{id}'"
+        db = sql.connect(self.db_path)
+        res = db.execute(query).fetchall()
+        if len(res) == 0:
+            raise Exception('Post not in DB')
+        else:
+            res = res[0]
+            post = dict()
+            post['id'] = res[0]
+            post['title'] = res[1]
+            post['author'] = res[2]
+            post['subreddit'] = res[3]
+            post['num_comments'] = res[4]
+            post['score'] = res[5]
+            post['selftext'] = res[6]
+            post['url'] = res[7]
+            return post
         
     def getPost(self, id):
+        if self.isPostInDB(id):
+            post = self.getPostFromDB(id)
+            return post
+    
         res = dict()
-        submission = self.reddit_client.submission(id)
-        res['id'] = id
-        res['title'] = submission.title
-        res['author'] = submission.author.name
-        res['subreddit'] = submission.subreddit.display_name
-        res['num_comments'] = submission.num_comments
-        res['score'] = submission.score
-        res['selftext'] = submission.selftext
-        res['url'] = submission.url
+        try:
+            submission = self.reddit_client.submission(id)
+            res['id'] = id
+            res['title'] = submission.title
+            res['author'] = submission.author.name
+            res['subreddit'] = submission.subreddit.display_name
+            res['num_comments'] = submission.num_comments
+            res['score'] = submission.score
+            res['selftext'] = submission.selftext
+            res['url'] = submission.url
+        except Exception as e:
+            error(e)
+            error('ERROR GETTING POST FROM PRAW')
+            res['id'] = ''
+            res['title'] = ''
+            res['author'] = ''
+            res['subreddit'] = ''
+            res['num_comments'] = ''
+            res['score'] = ''
+            res['selftext'] = ''
+            res['url'] = ''
+
+        self.addPostToDB(res)
 
         return res
 
 
 class Reddit(Platform):
     name = 'reddit'
-    url='https://www.reddit.com'
-    search_url='https://www.reddit.com/search/?q=%s'
-    creation_url='https://www.reddit.com/register/'
+    url='https://new.reddit.com'
+    search_url='https://new.reddit.com/search/?q=%s'
+    creation_url='https://new.reddit.com/register/'
 
     def __init__(self, userId):
         super().__init__(Reddit.name, Reddit.url, userId)
@@ -85,25 +148,42 @@ class Reddit(Platform):
     def _searchTermUrl(self, term):
         search_query = Reddit.search_url % (term)
         self.loadPage(search_query)
+        wait(2)
 
     def loggedIn(self):
         try:
-            self.driver.find_element(By.XPATH, '//a[text()="Log In"]').click()
-            return False
-        except:
+            buttons = self.driver.find_elements(By.XPATH, '//a[@id="login-button"]')
+            if len(buttons) > 0:
+                return False
+            else:
+                return True
+        except Exception as e:
+            error(e)
             return True
 
     def _searchTermBar(self, term):
         sleep(2.2)
         search_bar = self._getSearchBar()
-        print(search_bar)
+        if search_bar is None:
+            error('Search bar not found')
+            debug('Searching by URL')
+            self._searchTermUrl(term)
+            return
+
         search_bar.send_keys(term)
         sleep(1)
         search_bar.send_keys(Keys.ENTER)
 
     def _getSearchBar(self):
-        # return self.driver.find_element(By.XPATH, "//input[@placeholder='Search']")
-        return self.driver.find_element(By.ID, "header-search-bar")
+        try: 
+            search = self.driver.find_element(By.ID, "header-search-bar")
+        except:
+            try:
+                search = self.driver.find_element(By.XPATH, "//input[@placeholder='Search Reddit']")
+            except:
+                search = None
+        
+        return search
 
     def _getPostsResults(self):
         results = self.driver.find_element(By.XPATH, "//div[@data-testid='posts-list']")
@@ -306,13 +386,14 @@ class Reddit(Platform):
         api = RedditPRAW()
         try:
             post = api.getPost(id)
-        except:
+        except Exception as e:
+            error(str(e))
             error('ERROR GETTING POST FROM PRAW')
             post = {'id': id, 'title': '', 'author': '', 'subreddit': '', 'num_comments': '', 'score': '', 'selftext': '', 'url': ''}
         return post
 
     def getPagePosts(self, n=10):
-        pprint('Getting posts from page')
+        #TODO REMOVE REDUNDANCY (PRAW)
         sleep(1)
         posts = self.driver.find_elements(By.XPATH, '//div[@data-testid="post-container"]')
 
@@ -330,19 +411,12 @@ class Reddit(Platform):
 
         api = RedditPRAW()
 
-        pprint('Getting posts from PRAW')
         i = 0
-        for post in posts_ids[:n]:
-            pprint(post)
-            try:
-                post = api.getPost(post)
-            except:
-                error('ERROR GETTING POST FROM PRAW')
-                pass
+        for post in tqdm(posts_ids):
+            post = api.getPost(post)
             post['position'] = i
             posts.append(post)
             i += 1
-        # self.saveResults(posts, 'homepage_posts')
 
         return posts
 
@@ -353,6 +427,7 @@ class Reddit(Platform):
         posts.click()
         sleep(1)
         posts = self._getPostsResults()
+        debug("Posts: " + str(len(posts)))
         
         for post in posts:
             sleep(0.3)
@@ -360,9 +435,16 @@ class Reddit(Platform):
                 debug('Already opened: ' + post['id'])
             else:
                 post['elem'].click()
-                opened = post
-                return opened
+                wait(2)
+                post_info = self.getPostInfo(post['id'])
+                post_info['position'] = post['position']
+                return post_info
         sleep(1)
+        error("Returning last post")
+        post = posts[-1]
+        post_info = self.getPostInfo(post['id'])
+        post_info['position'] = post['position']
+        return post_info
 
     def likePost(self):
         posts = self.driver.find_element(By.XPATH, '//button[text()="Posts"]')
@@ -443,7 +525,6 @@ class Reddit(Platform):
                 sleep(3)
                 comment = self.driver.find_element(By.XPATH, '//div[@role="textbox"]')
                 comment.send_keys(content)
-                print(content)
                 super().scrollDown()
                 sleep(3)
                 submit = self.driver.find_element(By.XPATH, '//button[text()="Comment"]')

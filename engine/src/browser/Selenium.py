@@ -7,6 +7,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+import undetected_chromedriver as uc
 from time import sleep
 import constants
 import pickle as pkl
@@ -21,9 +22,9 @@ class Browser:
         self.loadSession()
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
         self.anti_bot_detection()
+        # self.driver = uc.Chrome()
 
     def anti_bot_detection(self):
-        self.driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": 'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_3_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36'})
         self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
     def getDriver(self):
@@ -35,20 +36,18 @@ class Browser:
         self.options.add_argument(f"user-data-dir={path}") 
 
     def loadOptions(self):
-
         self.options.add_experimental_option(
         "prefs", {"profile.default_content_setting_values.notifications": 1}
         )
+        self.options.add_experimental_option('useAutomationExtension', False)
+        self.options.add_argument('--disable-blink-features=AutomationControlled')
         self.options.add_argument("--disable-infobars")
         self.options.add_argument("start-maximized")
         self.options.add_argument("--disable-extensions")
-
         self.options.add_argument("--start-maximized")
-        self.options.add_argument("--disable-extensions")
         self.options.add_argument("--disable-infobars")
         self.options.add_argument('--disable-blink-features=AutomationControlled')
         # self.options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36")
-        self.options.add_argument("start-maximized")
         # self.options.add_experimental_option("eSwitches", ["enable-automation"])
         self.options.add_experimental_option('useAutomationExtension', False)
         # self.options.add_argument('media.autoplay.default',0)

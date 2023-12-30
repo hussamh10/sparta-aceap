@@ -120,7 +120,7 @@ class Experiment():
         debug(f'Running for platform: {platform}')
         subjects = self.get_subjects()
         for subject in subjects:
-            debug(f'\t\t Subject: {subject.id} • {subject.tick} • {self.tick}')
+            debug(f'\t\t Subject: {subject.id} • Subject Tick {subject.tick} • Exp Tick {self.tick}')
             if subject.tick > self.tick:
                 debug(f'\t\t Subject already run for tick {subject.tick}')
                 continue

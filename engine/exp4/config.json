@@ -26,8 +26,7 @@
     "experiment_id": "xp4",
     "platforms": [
         "Reddit",
-        "Twitter",
-        "Youtube"
+        "Twitter"
     ],
     "email_template": "xp4aceap",
     "database": "experiment.db",

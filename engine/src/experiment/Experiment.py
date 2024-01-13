@@ -99,6 +99,7 @@ class Experiment():
                 IP.shuffle()
                 debug(f'\t Signing in: {subject.id}:{subject.chromeid}')
                 subject.platformSignIn()
+                input('WAITING IN INITIATE')
 
         self.initiated = True
         self.tick = 0
@@ -126,6 +127,7 @@ class Experiment():
                 continue
             IP.shuffle()
             info(f'CHECKING IF SIGNED IN')
+
             if not subject.checkChromeSignin():
                 debug(f'\t Chrome Signing in subject: {subject.id}')
                 info(f'NOT SIGNED IN')
@@ -135,6 +137,7 @@ class Experiment():
                 debug(f'\t\t Platform Signing in subject: {subject.id}')
                 subject.platformSignIn()
 
+            input('WAITING')
             subject.observe(pre=True)
             wait(3)
             subject.treatment()

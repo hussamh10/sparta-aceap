@@ -152,6 +152,7 @@ class User:
 
     def getOpenedPosts(self):
         conn = sqlite3.connect(DATABASE)
+        # TODO: add platform to the query
         df = pd.read_sql_query("SELECT * FROM signals WHERE action = 'open-post' AND user = '%s'" % (self.info['id']), conn)
         conn.close()
         posts = list(df['content'])
@@ -161,11 +162,10 @@ class User:
         """
         Searches and likes the first post
         """
+        info(f"Opeining post for {topic}")
         sleep(2)
         self.search(topic)
-        debug('Term searched')
         opened_posts = self.getOpenedPosts()
-        debug(opened_posts)
         post = self.platform.openPost(already_opened=opened_posts)
         self.addSignal('open-post', str(post['id']), info=f'searched-{topic}', experiment=experiment)
         debug(f"OPENED POST: {post}")
@@ -195,8 +195,12 @@ class User:
         debug("searching")
         sleep(2)
         self.search(topic)
-        debug('Term searched')
+        info('Term searched: %s' % topic)
         post, opened = self.platform.likePost()
+
+        if post == None:
+            error('No post found to like')
+            raise Exception('No post found to like')
 
         self.addPosts(opened, str(uid()))
 
@@ -206,7 +210,7 @@ class User:
         if post != None:
             self.addSignal('like-post', post['id'], info=f'searched-{topic}', experiment=experiment)
 
-        return opened
+        return post
 
 
     def dislikePost(self, topic, experiment):

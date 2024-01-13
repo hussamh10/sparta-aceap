@@ -78,6 +78,12 @@ class Logger():
             df = df.drop_duplicates(subset=['tick'])
             df = df.set_index('tick')
         treatments = df.to_dict('index')
+        for treatment in treatments:
+            dump_path = treatments[treatment]['dump']
+            if not os.path.exists(dump_path):
+                treatments[treatment]['dump'] = {}
+            else:
+                treatments[treatment]['dump'] = pkl.load(open(treatments[treatment]['dump'], 'rb'))
         return treatments
 
 class Subject():
@@ -132,6 +138,7 @@ class Subject():
         self.Platform = getPlatform(self.platform)
         trial = Trial(self.action, self.topic, self.chromeid, self.Platform, self.experiment_id)
         trial.signUpUser()
+        input("WAITING IN SUBJECT")
         self.platform_signin = True
         trial.closeDriver()
         self.save()

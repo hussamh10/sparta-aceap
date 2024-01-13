@@ -5,28 +5,15 @@
             "topic": "biden"
         },
         {
-            "action": "open",
-            "topic": "biden"
-        },
-        {
-            "action": "open",
-            "topic": "trump"
-        },
-        {
-            "action": "like",
-            "topic": "trump"
-        },
-        {
             "action": "",
             "topic": ""
         }
     ],
-    "replication": 2,
+    "replication": 3,
     "days": 2,
     "experiment_id": "xp4",
     "platforms": [
-        "Reddit",
-        "Twitter"
+        "TikTok"
     ],
     "email_template": "xp4aceap",
     "database": "experiment.db",

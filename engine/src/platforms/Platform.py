@@ -37,8 +37,8 @@ class Platform(ABC):
         path = os.path.join(constants.SESSIONS_PATH, id)
 
         if not os.path.exists(path):
-            raise Exception(f'User {id} does not exist')
-            os.mkdir(f'{path}{self.platform}/{id}')
+            error(f'User {id} does not exist')
+            os.mkdir(path)
 
         try:
             browser = Browser(id)
@@ -140,7 +140,6 @@ class Platform(ABC):
 ########################################################################################################################
 
 # Search Platform
-
     @abstractclassmethod
     def _searchTermBar(self, term):
         pass

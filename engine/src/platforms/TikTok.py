@@ -1,10 +1,13 @@
-import sys; sys.path.append('..')
+import sys
+
+from utils.util import wait; sys.path.append('..')
 from platforms.Platform import Platform
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from utils.log import *
 from time import sleep
 import constants
+from utils import monkey
 
 # REQUIRED CAPTCHA!
 # https://piprogramming.org/articles/How-to-make-Selenium-undetectable-and-stealth--7-Ways-to-hide-your-Bot-Automation-from-Detection-0000000017.html
@@ -14,6 +17,7 @@ import constants
 class TikTok(Platform):
     name = 'tiktok'
     url='https://www.tiktok.com'
+    signin_url='https://www.tiktok.com/login'
     search_url='https://www.tiktok.com/search/user?q=%s'
     # Tiktok also adds the timestamp in front of the search like this: https://www.tiktok.com/search/user?q=abortion&t=1646274640529
 
@@ -33,3 +37,95 @@ class TikTok(Platform):
 
     def _getSearchBar(self):
         return self.driver.find_element(By.XPATH, "//input[@placeholder='Search accounts']")
+    
+    def _searchTermBar(self, term):
+        pass
+
+    def _searchTermUrl(self, term):
+        pass
+
+
+    def chromeLogin(self):
+        info('TikTok login')
+        self.driver.get(self.signin_url)
+        wait(2)
+
+        # select signin with Google
+
+        btn = self.driver.find_element(By.XPATH, "//p[contains(text(), 'Continue with Google')]")
+        btn.click()
+        wait(3)
+        monkey.next()
+        monkey.next()
+        monkey.enter()
+        wait(2)
+
+        # enter date of birth
+
+        monkey.next()
+        monkey.type('jan')
+        monkey.enter()
+
+        monkey.next()
+        monkey.type('22')
+        monkey.enter()
+
+        monkey.next()
+        monkey.enter()
+        monkey.type('1995')
+        monkey.enter()
+
+        monkey.next()
+        monkey.enter()
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Navigate Platform   
+
+    def createUser(self):
+        pass
+
+    def getHomePage(self):
+        pass
+    
+# Interaction
+
+    def joinCommunity(self):
+        pass
+
+    def followUser(self):
+        pass
+
+    def readComments(self):
+        pass
+
+    def openPost(self, already_opened=[]):
+        pass
+
+    def stayOnPost(self, time=5):
+        sleep(time)
+
+    # @abstractclassmethod
+    def likePost(self):
+        pass
+
+    # @abstractclassmethod
+    def dislikePost(self):
+        pass
+
+
+
+# Record Observaions
+
+    def getPagePosts(self, n=10):
+        pass

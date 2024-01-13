@@ -23,9 +23,8 @@ class Facebook(Platform):
 
     def createUser(self, info):
         self.loadPage(Facebook.creation_url)
-        input()
-        return True
-        sleep(5)
+        sleep(3)
+        monkey.click()
         monkey.next()
         monkey.type(info["firstname"])
         monkey.next()
@@ -34,8 +33,6 @@ class Facebook(Platform):
         monkey.type(info["email"])
         monkey.next()
         monkey.type(info["email"])
-        monkey.next()
-        monkey.type(info["phone"])
         monkey.next()
         monkey.type(info["password"])
         monkey.next()
@@ -51,6 +48,8 @@ class Facebook(Platform):
             monkey.press('space')
         else:
             monkey.press('right')
+
+        input("WAITING")
 
         sleep(4)
         return True

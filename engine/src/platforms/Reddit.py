@@ -420,7 +420,6 @@ class Reddit(Platform):
 
         return posts
 
-    #TODO CHANGE THIS TO POST TO LOCATION?
     def openPost(self, already_opened=[]):
         sleep(2)
         posts = self.driver.find_element(By.XPATH, '//button[text()="Posts"]')

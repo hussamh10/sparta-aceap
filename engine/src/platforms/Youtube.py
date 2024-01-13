@@ -8,6 +8,31 @@ from utils.log import *
 from time import sleep
 import constants
 import utils.monkey as monkey
+from innertube import InnerTube
+
+class MyTube():
+    def __init__(self):
+        self.tube = InnerTube("WEB")
+
+    def getVideoInfo(self, video_id):
+        try:    
+            data = self.tube.player(video_id=video_id)
+            data = data['videoDetails']
+            video = dict()
+            video['id'] = video_id
+            video['title'] = data['title']
+            video['channel'] = data['author']
+            video['length'] = data['lengthSeconds']
+            video['views'] = data['viewCount']
+            return video
+        except Exception as e:
+            error('InnerTube error')
+            error(f"{e}: {video_id}")
+            video = {'id': video_id, 'title': '', 'channel': '', 'length': '', 'views': ''}
+            return video
+
+    
+        
 
 class Youtube(Platform):
     name = 'youtube'
@@ -34,8 +59,20 @@ class Youtube(Platform):
     def _getSearchBar(self):
         return self.driver.find_element(By.XPATH, "//input[@placeholder='Search']")
 
-    def getHomePage():
-        pass
+    def loggedIn(self):
+        # if not logged in, there is an "a" tag with aria-label="Sign In"
+        try:
+            self.driver.find_element(By.XPATH, '//a[@aria-label="Sign in"]')
+            return False
+        except Exception as e:
+            debug('Already logged in')
+            self.turnOnHistory()
+            return True
+
+    def getHomePage(self):
+        home = self.driver.find_element(By.XPATH, '//a[@title="YouTube Home"]')
+        home.click()
+        wait(2)
 
 
     def followUser(self, channel=None, name=None):
@@ -64,7 +101,11 @@ class Youtube(Platform):
         raise Exception("No communities in Youtube")
 
     def getIdfromUrl(self, url):
-        return url.split('&')[0]
+        if "&" in url:
+            url = url.split('&')[0]
+        if 'v=' in url:
+            url = url.split('v=')[1]
+        return url
 
 
     def _getPostsResults(self):
@@ -83,9 +124,50 @@ class Youtube(Platform):
         return videos
 
 
+    def turnOnHistory(self):
+        debug('Turning on history')
+        self.driver.get('https://www.youtube.com/feed/history')
+        wait(2)
+        try:
+            button = self.driver.find_element(By.XPATH, '//button[@aria-label="Turn on watch history"]')
+            button.click()
+            wait(1)
+            button = self.driver.find_element(By.XPATH, '//button[@aria-label="Turn on"]')
+            button.click()
+            wait(1)
+        except Exception as e:
+            debug('Already turned on history')
+            pass
 
 
-    def getPagePosts(self):
+
+
+    def getPagePosts(self, posts_n=30):
+        video_elems = self.driver.find_elements(By.XPATH, '//a[@id="video-title-link"]')
+        tube = MyTube()
+
+        videos = []
+        ids = []
+        for i, elem in enumerate(video_elems):
+            video = dict()
+            video['id'] = elem.get_attribute('href').split('v=')[1]
+            if video['id'] in ids:
+                continue
+
+            video['position'] = i
+            video_info = tube.getVideoInfo(video['id'])
+            video['title'] = video_info['title']
+            video['channel'] = video_info['channel']
+            video['length'] = video_info['length']
+            video['views'] = video_info['views']
+            info(video['title'][:30])
+            ids.append(video['id'])
+            videos.append(video)
+
+        return videos
+
+
+
         sleep(3)
         raise Exception("Not implemented")
         videos = []
@@ -126,6 +208,7 @@ class Youtube(Platform):
 
     def openPost(self, already_opened=[]):
         videos = self._getPostsResults()
+        tube = MyTube()
         for video in videos:
             if video['id'] in already_opened:
                 debug('Already opened: ' + video['id'])
@@ -135,7 +218,9 @@ class Youtube(Platform):
             if self.isAd():
                 error("IS AD")
                 wait(10)
-            return
+            video_info = tube.getVideoInfo(video['id'])
+            return video_info
+
 
     def likeable(self):
         # check if likeable
@@ -155,10 +240,14 @@ class Youtube(Platform):
 
     def likePost(self):
         videos = self._getPostsResults()
+        tube = MyTube()
         wait(2)
+        opened = []
         for v in range(len(videos)):
             video = videos[v]
             video['elem'].click()
+            video_info = tube.getVideoInfo(video['id'])
+            opened.append(video_info)
             wait(3)
             if self.isAd():
                 error("IS AD")
@@ -169,11 +258,13 @@ class Youtube(Platform):
                 like = like_button.find_elements(By.XPATH, '//button[@title="I like this"]')[0]
                 like.click()
                 wait(3)
-                return
+                return video_info, opened
             else:
                 debug('Already liked')
                 self.driver.back()
                 wait(3)
+
+        return None, opened
 
 
 

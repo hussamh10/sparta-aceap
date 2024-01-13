@@ -43,14 +43,12 @@ class Trial():
             self.user.comment(self.topic, self.supplement, self.experiment_id)
 
         if self.action == 'open':
-            debug('Opening post')
             dump = self.user.openPost(self.topic, self.experiment_id)
 
         if self.action == 'dislike':
             self.user.dislikePost(self.topic, self.experiment_id)
 
         if self.action == 'like':
-            debug('Liking post')
             dump = self.user.likePost(self.topic, self.experiment_id)
 
         if self.action == 'join':

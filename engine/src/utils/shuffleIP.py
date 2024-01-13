@@ -1,7 +1,7 @@
 import subprocess as sp
 import requests
 from utils.util import wait
-from utils.log import debug
+from utils.log import debug, info, error
 
 def isRunning():
     out = sp.check_output(r'schtasks.exe /query /tn "shuffleIP"', shell=True)
@@ -21,6 +21,9 @@ def internetAccess():
         return False
 
 def shuffle():
+    # TEMP
+    # info("Skipping IP shuffle")
+    # return
     debug("Shuffling IP")
     task_name = "shuffleIP"
     command = ["schtasks", "/run", "/tn", task_name]

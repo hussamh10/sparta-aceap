@@ -4,6 +4,8 @@ from utils.log import debug, info, error, log
 from utils.util import wait
 
 class juicy():
+    GOOGLE = 1
+    FACEBOOK = 12
 
     def __init__(self):
         self.key = '8f4f7ccd11b3bcbafbffff1212db142d'
@@ -41,6 +43,7 @@ class juicy():
         self.code = response.text.split('_')[-1]
         if '-' in self.code:
             self.code = self.code.split('-')[1]
+        self.code = self.code.split(' ')[0]
         debug(self.code)
         return self.code
 
@@ -51,12 +54,18 @@ class juicy():
         debug(response.text)
 
 
-    def get_number(self):
-        output = self.get_phone_number()
+    def get_number(self, service='Google'):
+        if service.lower() == 'google':
+            service_id = self.GOOGLE
+        elif service.lower() == 'facebook':
+            service_id = self.FACEBOOK
+        else:
+            raise Exception('Service not supported')
+        output = self.get_phone_number(service_id=service_id)
         while output == 'already open':
             debug('already open')
             self.skip_number()
-            output = self.get_phone_number()
+            output = self.get_phone_number(service_id=service_id)
             wait(5)
 
         if output == 'no balance':
@@ -65,25 +74,23 @@ class juicy():
         if output == 'success':
             return self.area, self.phone_number
 
-
-
-    def get_phone_number(self):
+    def get_phone_number(self, service_id=GOOGLE):
         debug("Trying US")
-        request = f'https://juicysms.com/api/makeorder?key={self.key}&serviceId=1&country={self.area}'
+        request = f'https://juicysms.com/api/makeorder?key={self.key}&serviceId={service_id}&country={self.area}'
         response = requests.get(request)
         debug(response.text)
 
         if response.text == 'NO_PHONE_AVAILABLE':
             debug("Trying UK")
             self.area = 'UK'
-            request = f'https://juicysms.com/api/makeorder?key={self.key}&serviceId=1&country={self.area}'
+            request = f'https://juicysms.com/api/makeorder?key={self.key}&serviceId={service_id}&country={self.area}'
             response = requests.get(request)
             debug(response.text)
 
             if response.text == 'NO_PHONE_AVAILABLE':
                 debug("Trying NL")
                 self.area = 'NL'
-                request = f'https://juicysms.com/api/makeorder?key={self.key}&serviceId=1&country={self.area}'
+                request = f'https://juicysms.com/api/makeorder?key={self.key}&serviceId={service_id}&country={self.area}'
                 response = requests.get(request)
                 debug(response.text)
 

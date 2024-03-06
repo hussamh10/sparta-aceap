@@ -90,16 +90,6 @@ class Experiment():
                 continue
             else:
                 subject.assignChrome()
-            
-        for subject in subjects:
-            if subject.platform_signin:
-                debug(f'\t Platform already signed in {subject.id}:{subject.chromeid}')
-                continue
-            else:
-                IP.shuffle()
-                debug(f'\t Signing in: {subject.id}:{subject.chromeid}')
-                subject.platformSignIn()
-                input('WAITING IN INITIATE')
 
         self.initiated = True
         self.tick = 0

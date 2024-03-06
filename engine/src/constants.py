@@ -9,12 +9,15 @@ elif os.name == 'posix':  # Unix-like systems (Linux, macOS)
     DATA_DIR = '/Users/hussam/Desktop/Projects/ACEAP/engine/data'
 
 # Set the paths using os.path.join for OS compatibility
+LOGGING_PATH = os.path.join(BASE_DIR, 'data', 'logging')
+SCREENSHOTS_PATH = os.path.join(BASE_DIR, 'data', 'screenshots')
 SESSIONS_PATH = os.path.join(BASE_DIR, 'data', 'sessions')
 USERS_PATH = os.path.join(BASE_DIR, 'data', 'users')
 SEARCH_COMMUNITIES = 'search_communities'
-
-DATABASE = os.path.join(BASE_DIR, 'data', 'aceap.db')
-
+DATABASE = os.path.join(BASE_DIR, 'data', 'signals.db')
+IP_FILE = os.path.join(BASE_DIR, 'src', 'utils', 'ip.txt')
+TAKEN_IP_FILE = os.path.join(BASE_DIR, 'src', 'utils', 'taken.txt')
+CURRENT_IP_FILE = os.path.join(BASE_DIR, 'src', 'utils', 'current-ip.txt')
 
 def getPlatform(platform_name):
     platform_name = platform_name.lower()

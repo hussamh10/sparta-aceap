@@ -1,6 +1,8 @@
+from utils.log import debug
 from time import sleep
 import random
 import re
+from tqdm import tqdm
 
 def convertStringToNumber(number):
     num = number.replace(',', '')
@@ -22,3 +24,9 @@ def wait(sec):
     # sleep for sec but preturb randomly
     sec = sec + random.uniform(0, 1)
     sleep(sec)
+
+def bigWait(minutes=5):
+    debug(f"Waiting for {minutes} minutes")
+    seconds = minutes * 60
+    for i in tqdm(list(range(seconds))):
+        sleep(1)

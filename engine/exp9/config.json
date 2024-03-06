@@ -1,0 +1,40 @@
+{
+    "treatments": [
+        {
+            "action": "like",
+            "topic": "oscars"
+        },
+        {
+            "action": "follow",
+            "topic": "oscars"
+        },
+        {
+            "action": "open",
+            "topic": "oscars"
+        },
+        {
+            "action": "join",
+            "topic": "oscars"
+        },
+        {
+            "action": "search",
+            "topic": "oscars"
+        },
+        {
+            "action": "",
+            "topic": ""
+        }
+    ],
+    "replication": 3,
+    "days": 2,
+    "experiment_id": "xp9",
+    "platforms": [
+        "YouTube",
+        "Reddit",
+        "Twitter",
+        "Facebook"
+    ],
+    "email_template": "xp9aceap",
+    "database": "experiment.db",
+    "path": "C:\\Users\\hussa\\Desktop\\sparta-aceap\\engine\\exp9\\data"
+}

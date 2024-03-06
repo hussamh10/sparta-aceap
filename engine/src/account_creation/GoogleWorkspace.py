@@ -7,6 +7,7 @@ from utils import shuffleIP as IP
 import pandas as pd
 
 from utils.log import debug, error
+from utils.util import wait, bigWait
 
 class GoogleWorkspace():
     def __init__(self):
@@ -17,6 +18,10 @@ class GoogleWorkspace():
         num_users = len(config['treatments']) * config['replication']
         experiment_id = config['experiment_id']
         query = f'SELECT * FROM users WHERE exp="{experiment_id}" AND chrome_signin=1'
+        # remove any rows from database where chrome_signin is NULL
+        db = sql.connect(self.db_path)
+        
+
         df = pd.read_sql(query, sql.connect(self.db_path))
         users = list(list(df.to_dict('records')))
         debug(f"Users required: {num_users}")
@@ -33,7 +38,8 @@ class GoogleWorkspace():
     def createUsers(self, config):
         csv_path = os.path.join(config['path'], 'google_users.csv')
         num_users = len(config['treatments']) * config['replication']
-        if not os.path.isfile(csv_path):
+        i = input("Are users uploaded to Google Admin? (y/n) ")
+        if i == 'n':
             debug("Users not uploaded to Google Admin yet")
             users = self.signUp(num_users, config['email_template'], config['experiment_id'], csv_path)
             input("*** Upload CSV to Google Admin and press enter to continue... ***")
@@ -63,7 +69,6 @@ class GoogleWorkspace():
     def HasUsers(self, platform, experiment_id):
         platform = platform.lower()
         query = f'SELECT * FROM users WHERE exp="{experiment_id}" AND {platform} is NULL AND chrome_signin=1'
-        print(query)
         df = pd.read_sql(query, sql.connect(self.db_path))
         users = list(df.to_dict('records'))
         return len(users) > 0
@@ -117,9 +122,8 @@ class GoogleWorkspace():
     def usersUploaded(self, users):
         db = sql.connect(self.db_path)
         for user in users:
-            query = f'INSERT INTO users (fname, lname, email, id, exp, google_signin, chrome_signin, chrome_session, reddit, twitter, youtube, tiktok) VALUES ("{user["fname"]}", "{user["lname"]}", "{user["email"]}", "{user["id"]}", "{user["exp"]}", None, None, None, None, None, None, None)'
+            query = f'INSERT INTO users (fname, lname, email, id, exp, google_signin, chrome_signin, chrome_session, reddit, twitter, youtube, tiktok, facebook) VALUES ("{user["fname"]}", "{user["lname"]}", "{user["email"]}", "{user["id"]}", "{user["exp"]}", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)'
             db.execute(query)
-
         db.commit()
         db.close()
 
@@ -136,6 +140,7 @@ class GoogleWorkspace():
 
         GA = GoogleAccount(email, fname, lname, password, None)
         isSignedIn = GA.checkChromeSignedIn()
+        GA.closeDriver()
         if isSignedIn:
             return True
         else:
@@ -174,8 +179,9 @@ class GoogleWorkspace():
 
         GA = GoogleAccount(email, fname, lname, password, None)
         GA.create()
+        wait(3)
+        GA.closeDriver()
         return
-
 
     def chromeSignInAll(self, users):
         for user in users:
@@ -186,14 +192,11 @@ class GoogleWorkspace():
             IP.shuffle()
             self.createAccount(user)
             self.updateChromeSignIn(user)
-
-
-    # GET USERS
+            bigWait()
             
     def getUser(self, platform, experiment_id):
         platform = platform.lower()
         query = f'SELECT * FROM users WHERE exp="{experiment_id}" AND {platform} is NULL'
-        print(query)
         df = pd.read_sql(query, sql.connect(self.db_path))
         users = list(df.to_dict('records'))
         return users[0]['email'], users[0]['chrome_session']

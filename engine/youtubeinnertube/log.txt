@@ -1,0 +1,159 @@
+DEBUG: Users required: 3
+DEBUG: Enough users already created: [{'fname': 'Amanda', 'lname': 'Reising', 'email': 'xp9aceap0@spartaaceap.com', 'id': 'xp9aceap0', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap0', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'Regina', 'lname': 'Adams', 'email': 'xp9aceap1@spartaaceap.com', 'id': 'xp9aceap1', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap1', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'Sandra', 'lname': 'Hoffman', 'email': 'xp9aceap2@spartaaceap.com', 'id': 'xp9aceap2', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap2', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'William', 'lname': 'Wood', 'email': 'xp9aceap3@spartaaceap.com', 'id': 'xp9aceap3', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap3', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'Nina', 'lname': 'Mcadams', 'email': 'xp9aceap4@spartaaceap.com', 'id': 'xp9aceap4', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap4', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'Rosemary', 'lname': 'Hutchison', 'email': 'xp9aceap5@spartaaceap.com', 'id': 'xp9aceap5', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap5', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'Kelly', 'lname': 'Sinstack', 'email': 'xp9aceap6@spartaaceap.com', 'id': 'xp9aceap6', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap6', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'Whitney', 'lname': 'Martinez', 'email': 'xp9aceap7@spartaaceap.com', 'id': 'xp9aceap7', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap7', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'Sharon', 'lname': 'Rivera', 'email': 'xp9aceap8@spartaaceap.com', 'id': 'xp9aceap8', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap8', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'Marylouise', 'lname': 'Williams', 'email': 'xp9aceap9@spartaaceap.com', 'id': 'xp9aceap9', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap9', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'Mary', 'lname': 'Perry', 'email': 'xp9aceap10@spartaaceap.com', 'id': 'xp9aceap10', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap10', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'Vincent', 'lname': 'Elmendorf', 'email': 'xp9aceap11@spartaaceap.com', 'id': 'xp9aceap11', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap11', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'Donald', 'lname': 'Cloke', 'email': 'xp9aceap12@spartaaceap.com', 'id': 'xp9aceap12', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap12', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'Christopher', 'lname': 'Smith', 'email': 'xp9aceap13@spartaaceap.com', 'id': 'xp9aceap13', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap13', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'Courtney', 'lname': 'Feldman', 'email': 'xp9aceap14@spartaaceap.com', 'id': 'xp9aceap14', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap14', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'Geraldine', 'lname': 'Cooper', 'email': 'xp9aceap15@spartaaceap.com', 'id': 'xp9aceap15', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap15', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'Michael', 'lname': 'Reifsnyder', 'email': 'xp9aceap16@spartaaceap.com', 'id': 'xp9aceap16', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap16', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}, {'fname': 'Matthew', 'lname': 'Carlson', 'email': 'xp9aceap17@spartaaceap.com', 'id': 'xp9aceap17', 'exp': 'xp9', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'xp9aceap17', 'reddit': 1, 'twitter': 1, 'youtube': 1, 'tiktok': None, 'facebook': 1}]
+DEBUG: Users required: 3
+DEBUG: No users created yet
+DEBUG: Users not uploaded to Google Admin yet
+DEBUG: Users required: 3
+DEBUG: No users created yet
+DEBUG: Users not uploaded to Google Admin yet
+DEBUG: None
+DEBUG: SIGNING IN: {'fname': 'Misty', 'lname': 'Cecere', 'email': 'spartan0@spartaaceap.com', 'id': 'spartan0', 'exp': 'ytit', 'google_account_setup': False, 'google_signin': False, 'chrome_signin': False, 'chrome_session': None, 'reddit': 0, 'twitter': 0, 'youtube': 0, 'tiktok': 0}
+DEBUG: Getting New IP
+DEBUG: waiting for signin
+DEBUG: https://myaccount.google.com/?utm_source=sign_in_no_continue&pli=1
+DEBUG: Signed In
+DEBUG: Waiting for 5 minutes
+DEBUG: Users required: 6
+ERROR: Not enough users created: [{'fname': 'Misty', 'lname': 'Cecere', 'email': 'spartan0@spartaaceap.com', 'id': 'spartan0', 'exp': 'ytit', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'spartan0', 'reddit': None, 'twitter': None, 'youtube': None, 'tiktok': None, 'facebook': None}]
+DEBUG: Users not uploaded to Google Admin yet
+DEBUG: 1.0
+DEBUG: ALREADY SIGNED IN: {'fname': 'Jennie', 'lname': 'Rhyne', 'email': 'spartan0@spartaaceap.com', 'id': 'spartan0', 'exp': 'ytit', 'google_account_setup': False, 'google_signin': False, 'chrome_signin': False, 'chrome_session': None, 'reddit': 0, 'twitter': 0, 'youtube': 0, 'tiktok': 0}
+DEBUG: None
+DEBUG: SIGNING IN: {'fname': 'Christine', 'lname': 'Whitmire', 'email': 'spartan1@spartaaceap.com', 'id': 'spartan1', 'exp': 'ytit', 'google_account_setup': False, 'google_signin': False, 'chrome_signin': False, 'chrome_session': None, 'reddit': 0, 'twitter': 0, 'youtube': 0, 'tiktok': 0}
+DEBUG: Getting New IP
+DEBUG: Users required: 6
+ERROR: Not enough users created: [{'fname': 'Misty', 'lname': 'Cecere', 'email': 'spartan0@spartaaceap.com', 'id': 'spartan0', 'exp': 'ytit', 'google_signin': None, 'chrome_signin': 1, 'chrome_session': 'spartan0', 'reddit': None, 'twitter': None, 'youtube': None, 'tiktok': None, 'facebook': None}]
+DEBUG: Users uploaded to Google Admin already
+DEBUG: 1.0
+DEBUG: ALREADY SIGNED IN: {'fname': 'Misty', 'lname': 'Cecere', 'email': 'spartan0@spartaaceap.com', 'id': 'spartan0', 'exp': 'ytit', 'google_signin': None, 'chrome_signin': 1.0, 'chrome_session': 'spartan0', 'reddit': None, 'twitter': None, 'youtube': None, 'tiktok': None, 'facebook': None}
+DEBUG: None
+DEBUG: SIGNING IN: {'fname': 'Jeanette', 'lname': 'Mccartney', 'email': 'spartan1@spartaaceap.com', 'id': 'spartan1', 'exp': 'ytit', 'google_signin': None, 'chrome_signin': nan, 'chrome_session': None, 'reddit': None, 'twitter': None, 'youtube': None, 'tiktok': None, 'facebook': None}
+DEBUG: Getting New IP
+DEBUG: waiting for signin
+DEBUG: https://myaccount.google.com/?utm_source=sign_in_no_continue&pli=1
+DEBUG: Signed In
+DEBUG: Waiting for 5 minutes
+DEBUG: None
+DEBUG: SIGNING IN: {'fname': 'Nathan', 'lname': 'Holdsworth', 'email': 'spartan2@spartaaceap.com', 'id': 'spartan2', 'exp': 'ytit', 'google_signin': None, 'chrome_signin': nan, 'chrome_session': None, 'reddit': None, 'twitter': None, 'youtube': None, 'tiktok': None, 'facebook': None}
+DEBUG: Getting New IP
+DEBUG: waiting for signin
+DEBUG: https://myaccount.google.com/?utm_source=sign_in_no_continue&pli=1
+DEBUG: Signed In
+DEBUG: Waiting for 5 minutes
+DEBUG: 1.0
+DEBUG: ALREADY SIGNED IN: {'fname': 'Jennie', 'lname': 'Rhyne', 'email': 'spartan0@spartaaceap.com', 'id': 'spartan0', 'exp': 'ytit', 'google_signin': None, 'chrome_signin': nan, 'chrome_session': None, 'reddit': None, 'twitter': None, 'youtube': None, 'tiktok': None, 'facebook': None}
+DEBUG: 1
+DEBUG: ALREADY SIGNED IN: {'fname': 'Christine', 'lname': 'Whitmire', 'email': 'spartan1@spartaaceap.com', 'id': 'spartan1', 'exp': 'ytit', 'google_signin': None, 'chrome_signin': nan, 'chrome_session': None, 'reddit': None, 'twitter': None, 'youtube': None, 'tiktok': None, 'facebook': None}
+DEBUG: 1
+DEBUG: ALREADY SIGNED IN: {'fname': 'Herbert', 'lname': 'Rance', 'email': 'spartan2@spartaaceap.com', 'id': 'spartan2', 'exp': 'ytit', 'google_signin': None, 'chrome_signin': nan, 'chrome_session': None, 'reddit': None, 'twitter': None, 'youtube': None, 'tiktok': None, 'facebook': None}
+DEBUG: None
+DEBUG: SIGNING IN: {'fname': 'Maria', 'lname': 'Simmons', 'email': 'spartan3@spartaaceap.com', 'id': 'spartan3', 'exp': 'ytit', 'google_signin': None, 'chrome_signin': nan, 'chrome_session': None, 'reddit': None, 'twitter': None, 'youtube': None, 'tiktok': None, 'facebook': None}
+DEBUG: Getting New IP
+DEBUG: waiting for signin
+DEBUG: https://myaccount.google.com/?utm_source=sign_in_no_continue
+DEBUG: Signed In
+DEBUG: Waiting for 5 minutes
+DEBUG: None
+DEBUG: SIGNING IN: {'fname': 'Harold', 'lname': 'Roberson', 'email': 'spartan4@spartaaceap.com', 'id': 'spartan4', 'exp': 'ytit', 'google_signin': None, 'chrome_signin': nan, 'chrome_session': None, 'reddit': None, 'twitter': None, 'youtube': None, 'tiktok': None, 'facebook': None}
+DEBUG: Getting New IP
+DEBUG: waiting for signin
+DEBUG: https://accounts.google.com/speedbump/changepassword?TL=ADg0xR3AtpbDCEXD-puFVT6cWs-cCTZYAF4JU2HB3WmTEbYIKGkNJvktPWqQKPhT&checkConnection=youtube%3A107&checkedDomains=youtube&dsh=S-586303506%3A1709745187599948&flowEntry=ServiceLogin&flowName=GlifWebSignIn&ifkv=ATuJsjzgc9KbI2ASRI3H6nH3tcfjdHWIxH1EMQWBEfhYZ7q85Zm76_ZmfSjefy1i0qcMFr78mvt4KQ&pstMsg=1&theme=mn
+DEBUG: Waiting for 5 minutes
+DEBUG: None
+DEBUG: SIGNING IN: {'fname': 'Edward', 'lname': 'Depaul', 'email': 'spartan5@spartaaceap.com', 'id': 'spartan5', 'exp': 'ytit', 'google_signin': None, 'chrome_signin': nan, 'chrome_session': None, 'reddit': None, 'twitter': None, 'youtube': None, 'tiktok': None, 'facebook': None}
+DEBUG: Getting New IP
+DEBUG: waiting for signin
+DEBUG: https://myaccount.google.com/?utm_source=sign_in_no_continue
+DEBUG: Signed In
+DEBUG: Waiting for 5 minutes
+DEBUG: Users created and chromed signed in
+DEBUG: Loading experiment config
+DEBUG: Saving experiment
+DEBUG: Initiating YouTube experiment...
+DEBUG: 	 Creating subjects
+DEBUG: 			 Assigning spartan0 chrome for watch_video_0
+DEBUG: 			 Assigning spartan1 chrome for watch_video_1
+DEBUG: 			 Assigning spartan2 chrome for watch_video_2
+DEBUG: 			 Assigning spartan3 chrome for like_video_0
+DEBUG: 			 Assigning spartan4 chrome for like_video_1
+DEBUG: 			 Assigning spartan5 chrome for like_video_2
+DEBUG: Loading experiment config
+DEBUG: Loading experiment
+DEBUG: Experiment YouTube already initiated.
+DEBUG: Shuffling IP for watch_video_2
+DEBUG: No IP for watch_video_2.... Getting new IP
+DEBUG: Getting New IP
+INFO: Current IP Address: 128.255.45.136
+DEBUG: Current IP: 128.255.45.136
+DEBUG: Shuffling IP for watch_video_2
+DEBUG: No IP for watch_video_2.... Getting new IP
+DEBUG: Getting New IP
+INFO: Current IP Address: 128.255.45.139
+DEBUG: Current IP: 128.255.45.139
+DEBUG: Chrome signed in: True
+DEBUG: Platform: YouTube, Subject: watch_video_2
+Platform: YouTube, Subject: watch_video_2DEBUG: 	 Signing in watch_video_2 on YouTube
+	 Signing in watch_video_2 on YouTubeLoading browser for user: spartan2
+DEBUG: Turning on history
+DEBUG: Taking screenshot
+DEBUG: Screenshot saved: C:\Users\hussa\Desktop\sparta-aceap\engine\data\screenshots\create-b11a8a18.png
+DEBUG: Signal added: create
+INFO: Closing browser
+ERROR: Could not close browser
+ERROR: [WinError 5] Access is denied
+DEBUG: Signed in watch_video_2 on YouTube
+DEBUG: Waiting for 4 minutes
+DEBUG: Shuffling IP for like_video_0
+DEBUG: No IP for like_video_0.... Getting new IP
+DEBUG: Getting New IP
+INFO: Current IP Address: 128.255.45.157
+DEBUG: Current IP: 128.255.45.157
+DEBUG: Chrome signed in: True
+DEBUG: Platform: YouTube, Subject: like_video_0
+Platform: YouTube, Subject: like_video_0DEBUG: 	 Signing in like_video_0 on YouTube
+	 Signing in like_video_0 on YouTubeLoading browser for user: spartan3
+DEBUG: Turning on history
+DEBUG: Taking screenshot
+DEBUG: Screenshot saved: C:\Users\hussa\Desktop\sparta-aceap\engine\data\screenshots\create-2684c395.png
+DEBUG: Signal added: create
+INFO: Closing browser
+ERROR: Could not close browser
+ERROR: [WinError 5] Access is denied
+DEBUG: Signed in like_video_0 on YouTube
+DEBUG: Waiting for 4 minutes
+DEBUG: Shuffling IP for like_video_1
+DEBUG: No IP for like_video_1.... Getting new IP
+DEBUG: Getting New IP
+INFO: Current IP Address: 128.255.45.158
+DEBUG: Current IP: 128.255.45.158
+DEBUG: Chrome signed in: True
+DEBUG: Platform: YouTube, Subject: like_video_1
+Platform: YouTube, Subject: like_video_1DEBUG: 	 Signing in like_video_1 on YouTube
+	 Signing in like_video_1 on YouTubeLoading browser for user: spartan4
+DEBUG: Turning on history
+DEBUG: Taking screenshot
+DEBUG: Screenshot saved: C:\Users\hussa\Desktop\sparta-aceap\engine\data\screenshots\create-c8159ec0.png
+DEBUG: Signal added: create
+INFO: Closing browser
+ERROR: Could not close browser
+ERROR: [WinError 5] Access is denied
+DEBUG: Signed in like_video_1 on YouTube
+DEBUG: Waiting for 4 minutes
+DEBUG: Shuffling IP for like_video_2
+DEBUG: No IP for like_video_2.... Getting new IP
+DEBUG: Getting New IP
+INFO: Current IP Address: 128.255.45.163
+DEBUG: Current IP: 128.255.45.163
+DEBUG: Chrome signed in: True
+DEBUG: Platform: YouTube, Subject: like_video_2
+Platform: YouTube, Subject: like_video_2DEBUG: 	 Signing in like_video_2 on YouTube
+	 Signing in like_video_2 on YouTubeLoading browser for user: spartan5
+DEBUG: Turning on history
+DEBUG: Taking screenshot
+DEBUG: Screenshot saved: C:\Users\hussa\Desktop\sparta-aceap\engine\data\screenshots\create-45efb116.png
+DEBUG: Signal added: create
+INFO: Closing browser
+ERROR: Could not close browser
+ERROR: [WinError 5] Access is denied
+DEBUG: Signed in like_video_2 on YouTube
+DEBUG: Waiting for 4 minutes

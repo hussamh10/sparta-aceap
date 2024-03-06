@@ -27,13 +27,14 @@ class Logger():
                 "tick"	INTEGER,
                 "action"	TEXT,
                 "topic"	TEXT,
-                "dump"	TEXT
+                "dump"	TEXT,
+                "screenshot"	TEXT
             )'''
             db.execute(query)
             db.commit()
             db.close()
     
-    def log(self, user, platform, tick, action, topic, dump):
+    def log(self, user, platform, tick, action, topic, dump, screenshot=''):
         db = sql.connect(self.file_name)
         t = time()
         query = f'''INSERT INTO logs VALUES (
@@ -43,7 +44,8 @@ class Logger():
             {tick},
             '{action}',
             '{topic}',
-            '{dump}'
+            '{dump}', 
+            '{screenshot}'
         )'''
         db.execute(query)
         db.commit()
@@ -52,31 +54,32 @@ class Logger():
     def get_observation(self, user, tick):   
         db = sql.connect(self.file_name)
         df = pd.read_sql_query(f"SELECT * FROM logs WHERE user='{user}' AND action='observe' AND tick={tick}", db)
-        try: 
-            df = df.set_index('tick')
-        except:
-            # remove duplicate ticks
-            error("Multiple treatments in the same tick")
-            df = df.drop_duplicates(subset=['tick'])
-            df = df.set_index('tick')
+        df = df.to_dict('records')
+        observations = []
+        for record in df:
+            try:
+                obs = record['dump']
+                obs = pd.read_pickle(obs)
+                if obs == []:
+                    continue
+                observations.append(obs)
+            except Exception as e:
+                error(e)
+                continue
+        
+        # return the observation with the most data
         try:
-            df = df.to_dict('records')[0]
-            obs = df['dump']
-            obs = pkl.load(open(obs, 'rb'))
-            return obs
-        except:
-            return None
+            obs = max(observations, key=lambda x: len(x))
+        except Exception as e:
+            error(e)
+            obs = []
+        return obs
 
     def get_treatments(self, user):
         db = sql.connect(self.file_name)
         df = pd.read_sql_query(f"SELECT * FROM logs WHERE user='{user}' AND action!='observe'", db)
-        try: 
-            df = df.set_index('tick')
-        except:
-            # remove duplicate ticks
-            error("Multiple treatments in the same tick")
-            df = df.drop_duplicates(subset=['tick'])
-            df = df.set_index('tick')
+        df = df.drop_duplicates(subset=['tick'])
+        df = df.set_index('tick')
         treatments = df.to_dict('index')
         for treatment in treatments:
             dump_path = treatments[treatment]['dump']
@@ -134,11 +137,17 @@ class Subject():
         self.save()
         return
 
+
     def platformSignIn(self):
         self.Platform = getPlatform(self.platform)
         trial = Trial(self.action, self.topic, self.chromeid, self.Platform, self.experiment_id)
-        trial.signUpUser()
-        input("WAITING IN SUBJECT")
+        file = os.path.join(self.path, f'{self.id}_{self.platform}.png')
+        try:
+            trial.signUpUser()
+        except Exception as e:
+            error(e)
+            trial.closeDriver()
+            return
         self.platform_signin = True
         trial.closeDriver()
         self.save()
@@ -154,7 +163,13 @@ class Subject():
 
     def checkSignin(self):
         trial = Trial(self.action, self.topic, self.chromeid, self.Platform, self.experiment_id)
-        signed = trial.checkSignin()
+        try:
+            signed = trial.checkSignin()
+        except Exception as e:
+            error(e)
+            trial.closeDriver()
+            return False
+        trial.closeDriver()
         return signed
 
     def save_dump(self, d, record):
@@ -165,11 +180,16 @@ class Subject():
         pkl.dump(d, open(dump_path, 'wb'))
         return dump_path
 
-
     def observe(self, pre=False):
         trial = Trial(self.action, self.topic, self.chromeid, self.Platform, self.experiment_id)
         trial.loadUser()
-        dump = trial.observe()
+        try:
+            dump, screenshot = trial.observe()
+        except Exception as e:
+            error(e)
+            trial.closeDriver()
+            return
+
         trial.closeDriver()
         dump_path = self.save_dump(dump, 'observations')
         # random id
@@ -179,13 +199,27 @@ class Subject():
             tick = self.tick + 0.25
 
         logger = Logger(self.path, self.platform, self.experiment_id)
-        logger.log(self.id, self.platform, tick, 'observe', 'home', dump_path)
+        logger.log(self.id, self.platform, tick, 'observe', 'home', dump_path, screenshot)
         self.save()
         
+    def vanilla(self):
+        trial = Trial('vanilla', self.topic, self.chromeid, self.Platform, self.experiment_id)
+        trial.loadUser()
+        dump = trial.runExperiment()
+        trial.closeDriver()
+        dump_path = self.save_dump(dump, 'vanillas')
+        logger = Logger(self.path, self.platform, self.experiment_id)
+        logger.log(self.id, self.platform, self.tick, self.action, self.topic, dump_path)
+
     def treatment(self):
         trial = Trial(self.action, self.topic, self.chromeid, self.Platform, self.experiment_id)
         trial.loadUser()
-        dump = trial.runExperiment()
+        try:
+            dump = trial.runExperiment()
+        except Exception as e:
+            error(e)
+            trial.closeDriver()
+            return
         trial.closeDriver()
         dump_path = self.save_dump(dump, 'treatments')
         logger = Logger(self.path, self.platform, self.experiment_id)
@@ -196,10 +230,9 @@ class Subject():
         self.tick += 1
         self.save()
 
-
     def get_observations(self, tick):
         pre = tick - 0.25
-        post = tick - 0.25
+        post = tick + 0.25
         logger = Logger(self.path, self.platform, self.experiment_id)
         pre = logger.get_observation(self.id, pre)
         post = logger.get_observation(self.id, post)

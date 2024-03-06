@@ -26,8 +26,8 @@ class Trial():
         return self.user.checkSignin()
 
     def observe(self):
-        dump = self.user.recordHome(self.experiment_id, scrolls=6, posts_n=10)
-        return dump
+        dump, screenshot = self.user.recordHome(scrolls=6)
+        return dump, screenshot
 
     def closeDriver(self):
         self.user.closeDriver()
@@ -40,22 +40,28 @@ class Trial():
             pass
 
         if self.action == 'comment':
-            self.user.comment(self.topic, self.supplement, self.experiment_id)
+            self.user.comment(self.topic, self.supplement)
 
         if self.action == 'open':
-            dump = self.user.openPost(self.topic, self.experiment_id)
+            dump = self.user.openPost(self.topic)
 
         if self.action == 'dislike':
-            self.user.dislikePost(self.topic, self.experiment_id)
+            self.user.dislikePost(self.topic)
 
         if self.action == 'like':
-            dump = self.user.likePost(self.topic, self.experiment_id)
+            dump = self.user.likePost(self.topic)
 
         if self.action == 'join':
-            self.user.joinCommunity(self.topic, self.experiment_id)
+            self.user.joinCommunity(self.topic)
 
         if self.action == 'follow':
-            self.user.followUser(self.topic, self.experiment_id)
+            self.user.followUser(self.topic)
+
+        if self.action == 'vanilla':
+            if self.platform.name == 'reddit':
+                self.user.joinCommunity(self.topic) 
+            else:
+                self.user.followUser(self.topic)
 
         sleep(2)
         self.user.goHome()

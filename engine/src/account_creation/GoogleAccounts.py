@@ -57,14 +57,9 @@ class GoogleAccount():
         while failed:
             debug('TRYING YELLOWPAGE')
             area, phone_number = self.sms.get_number()
-            area_names = {'USA': 'united states', 'NL': 'netherlands', 'UK': 'united kingdom'}
+            area_names = {'USA': '+1', 'NL': '+31' , 'UK': '+44'}
 
-            wait(1)
-            monkey.back()
-            wait(1)
             monkey.type(area_names[area])
-            wait(1)
-            monkey.next()
             wait(1)
             monkey.type(phone_number)
             wait(1)
@@ -86,13 +81,14 @@ class GoogleAccount():
             debug('GOT NUMBER')
             wait(4)
             inputs = self.driver.find_elements(By.XPATH, "//input[@id='smsUserPin']")
-            if len(inputs) > 0:
+            if True:
+            # if len(inputs) > 0:
                 debug('WAITING FOR CODE')
                 code = self.sms.get_code()
                 while code == -1:
                     wait(2)
                     code = self.sms.get_code()
-                inputs[0].click()
+                # inputs[0].click()
                 wait(1)
                 monkey.type(code)
                 wait(1)
@@ -101,7 +97,6 @@ class GoogleAccount():
                 btn = self.driver.find_element(By.XPATH, "//input[@name='confirm']")
                 btn.click()
                 wait(3)
-            
 
 
     def create(self):
@@ -131,9 +126,15 @@ class GoogleAccount():
         wait(1)
         monkey.enter()
 
-
         # get url of the page
         wait(2)
+
+        understand = self.driver.find_elements(By.XPATH, '//input[@id="confirm"]')
+        if len(understand) > 0:
+            understand[0].click()
+        wait(3)
+
+
         url = self.driver.current_url
         debug(url)
         if 'myaccount.google.com' in url:
@@ -162,6 +163,9 @@ class GoogleAccount():
             signed = False
 
         wait(2)
-        self.driver.quit()
         return signed
+
+    def closeDriver(self):
+        self.driver.quit()
+        wait(3)
         

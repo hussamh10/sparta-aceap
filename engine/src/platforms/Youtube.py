@@ -1,22 +1,54 @@
 import sys
 
-from utils.util import wait; sys.path.append('..')
+from utils.util import convertStringToNumber, wait; sys.path.append('..')
 from platforms.Platform import Platform
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from utils.log import *
-from time import sleep
 import constants
 import utils.monkey as monkey
 from innertube import InnerTube
+from pytube import YouTube
 
 class MyTube():
     def __init__(self):
         self.tube = InnerTube("WEB")
+        
+    def getChannelInfo(self, channel_id):
+        PARAMS_TYPE_CHANNEL = "EgIQAg%3D%3D"
+        data = self.tube.search(channel_id, params=PARAMS_TYPE_CHANNEL)
+
+        channels = data['contents']['twoColumnSearchResultsRenderer']['primaryContents']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents']
+        for channel in channels:
+            if 'channelRenderer' not in channel:
+                continue
+            channel = channel['channelRenderer']
+            break
+
+        name = channel['title']['simpleText']
+        id = channel['channelId']
+        runs = channel['descriptionSnippet']['runs']
+        description = [i['text'] for i in runs]
+        description = ''.join(description)
+        subscribers = channel['videoCountText']['simpleText']
+        subscribers = convertStringToNumber(subscribers)
+
+        channel = {
+            'name': name,
+            'urlId': channel_id,
+            'id': id,
+            'description': description,
+            'subscribers': subscribers
+        }
+        return channel
 
     def getVideoInfo(self, video_id):
         try:    
             data = self.tube.player(video_id=video_id)
+            try:
+                publish_date = data['microformat']['playerMicroformatRenderer']['uploadDate']
+            except Exception as e:
+                publish_date = None
             data = data['videoDetails']
             video = dict()
             video['id'] = video_id
@@ -24,15 +56,31 @@ class MyTube():
             video['channel'] = data['author']
             video['length'] = data['lengthSeconds']
             video['views'] = data['viewCount']
+            video['url'] = f"https://www.youtube.com/watch?v={video_id}"
+            video['created'] = publish_date
+            video['description'] = data['shortDescription']
+
+            try:
+                client = InnerTube("WEB")
+                data = client.next(video_id)
+                like_count = data["contents"]["twoColumnWatchNextResults"]["results"]["results"]["contents"][0]["videoPrimaryInfoRenderer"]["videoActions"]["menuRenderer"]["topLevelButtons"][0]["segmentedLikeDislikeButtonRenderer"]["likeButton"]["toggleButtonRenderer"]["defaultText"]["accessibility"]["accessibilityData"]["label"].split(" ")[0]
+                like_count = int(like_count.replace(",", ""))
+                comment_count = data['contents']['twoColumnWatchNextResults']['results']['results']['contents'][2]['itemSectionRenderer']['contents'][0]['commentsEntryPointHeaderRenderer']['commentCount']['simpleText']
+                comment_count = convertStringToNumber(comment_count)
+
+            except Exception as e:
+                like_count = None
+                comment_count = None
+            finally:
+                video['likes'] = like_count
+                video['comments'] = comment_count
+
             return video
         except Exception as e:
             error('InnerTube error')
             error(f"{e}: {video_id}")
             video = {'id': video_id, 'title': '', 'channel': '', 'length': '', 'views': ''}
             return video
-
-    
-        
 
 class Youtube(Platform):
     name = 'youtube'
@@ -52,21 +100,25 @@ class Youtube(Platform):
     def _searchTermBar(self, term):
         search_bar = self._getSearchBar()
         debug(search_bar)
+        search_bar.send_keys('')
+        wait(1)
         search_bar.send_keys(term)
-        sleep(1)
+        wait(1)
         search_bar.send_keys(Keys.ENTER)
 
     def _getSearchBar(self):
         return self.driver.find_element(By.XPATH, "//input[@placeholder='Search']")
 
     def loggedIn(self):
-        # if not logged in, there is an "a" tag with aria-label="Sign In"
-        try:
-            self.driver.find_element(By.XPATH, '//a[@aria-label="Sign in"]')
+        debug('Checking if logged in')
+        self.loadPage('https://www.youtube.com/account')
+        wait(4)
+        # get url of the page
+        url = self.driver.current_url
+        debug(f"Checking if logged in: {url}")
+        if 'login' in url:
             return False
-        except Exception as e:
-            debug('Already logged in')
-            self.turnOnHistory()
+        else:
             return True
 
     def getHomePage(self):
@@ -76,26 +128,48 @@ class Youtube(Platform):
 
 
     def followUser(self, channel=None, name=None):
-        if channel:
-            sleep(3)
-            self.loadPage(channel['url'])
-            sleep(2)
-            elems = self.driver.find_elements(By.XPATH, '//yt-formatted-string[text()="Subscribe"]')
-            elems[0].click()
-        elif name:
-            # search for channel
-            pass
-        else:
-            raise Exception("No channel specified")
-    
-    def openChannel(self):
-        sleep(1)
-        filters = self.driver.find_element(By.XPATH, '//tp-yt-paper-button[@aria-label="Search filters"]')
+        self.openChannelResults()
+        wait(2)
+        tube = MyTube()
+
+        channels = self.driver.find_elements(By.XPATH, '//div[@id="content-section"]')
+        position = -1
+        for channel in channels:
+            position += 1
+            # check if subscribed
+            channel_id = channel.find_element(By.XPATH, './/span[@id="subscribers"]')
+            channel_id = channel_id.text
+
+            subscribe_button = channel.find_elements(By.XPATH, './/div[@id="subscribe-button"]')
+            debug(channel_id)
+            if len(subscribe_button) == 0:
+                error('No subscribe button found...: ' + channel_id)
+                continue
+
+            text = subscribe_button[0].text
+            if text == 'Subscribed':
+                debug('Already subscribed...: ' + channel_id)
+                continue
+            elif text == 'Subscribe':
+                subscribe_button[0].click()
+                channel = tube.getChannelInfo(channel_id)
+                channel['type'] = 'user'
+                channel['position'] = position
+                debug('Subscribed: ' + channel['name'])
+                wait(1)
+                channel = self.convertToSource(channel, 'search')
+                return channel
+            else:
+                error('Unknown subscribe button text...: ' + channel_id)
+                continue
+
+    def openChannelResults(self):
+        wait(1)
+        filters = self.driver.find_element(By.XPATH, '//button[@aria-label="Search filters"]')
         filters.click()
-        sleep(1)
+        wait(1)
         channels = self.driver.find_element(By.XPATH, '//yt-formatted-string[text()="Channel"]')
         channels.click()
-        
 
     def joinCommunity(self):
         raise Exception("No communities in Youtube")
@@ -116,9 +190,14 @@ class Youtube(Platform):
             video = dict()
             video['position'] = i
             video['name'] = res.find_element(By.ID, 'video-title').text
+            is_short = res.find_elements(By.XPATH, './/*[@aria-label="Shorts"]')
+            if len(is_short) > 0:
+                debug('Short video, skipping...')
+                continue
             url = res.find_element(By.ID, 'video-title').get_attribute('href')
             video['id'] = self.getIdfromUrl(url)
-            video['elem'] = res
+            elem = res.find_element(By.ID, 'video-title')
+            video['elem'] = elem
             videos.append(video)
 
         return videos
@@ -151,76 +230,44 @@ class Youtube(Platform):
         for i, elem in enumerate(video_elems):
             video = dict()
             video['id'] = elem.get_attribute('href').split('v=')[1]
+            video_info = tube.getVideoInfo(video['id'])
+            video_info['position'] = i
+            video = self.convertToObject(video_info, 'home')
             if video['id'] in ids:
                 continue
-
-            video['position'] = i
-            video_info = tube.getVideoInfo(video['id'])
-            video['title'] = video_info['title']
-            video['channel'] = video_info['channel']
-            video['length'] = video_info['length']
-            video['views'] = video_info['views']
-            info(video['title'][:30])
             ids.append(video['id'])
             videos.append(video)
-
-        return videos
-
-
-
-        sleep(3)
-        raise Exception("Not implemented")
-        videos = []
-        # Names
-        videos = self.driver.find_elements(By.TAG_NAME, "ytd-video-renderer")
-        debug(videos)
-        position = 0
-        for title, channel in zip(titles, channels):
-            video = dict()
-            video['position'] = position
-            video['name'] = title.text
-            video['url'] = title.get_attribute('href')
-            video['channel'] = channel.text
-            videos.append(video)
-            position += 1
-
-        for video in videos:
-            debug(video)
-
         return videos
 
     def getPost(self, video):
         self.loadPage(video['url'])
-        sleep(2)
+        wait(2)
         video['id'] = self.driver.current_url.split('v=')[1]
         return video
 
     def isAd(self):
         try:
-            ad = self.driver.find_element(By.XPATH, '//div[@class="ad-interrupting"]')
-            if ad:
-                return True
+            self.driver.find_element(By.XPATH, '//div[@class="ytp-ad-text"]') # Detect if there is an ad.
+            return True
+        except Exception:
             return False
-        except Exception as e:
-            return False
-        # press  button with class ytp-ad-skip-button-modern ytp-button
-
 
     def openPost(self, already_opened=[]):
         videos = self._getPostsResults()
         tube = MyTube()
-        for video in videos:
-            if video['id'] in already_opened:
-                debug('Already opened: ' + video['id'])
-                continue
-            video['elem'].click()
-            wait(3)
-            if self.isAd():
-                error("IS AD")
-                wait(10)
-            video_info = tube.getVideoInfo(video['id'])
-            return video_info
-
+        wait(2)
+        opened = []
+        #select first video
+        video = videos[0]
+        video['elem'].click()
+        video_info = tube.getVideoInfo(video['id'])
+        opened.append(video_info)
+        wait(3)
+        if self.isAd():
+            self._handleAd()
+        debug('Watching video for 30 seconds')
+        wait(30)
+        return video_info
 
     def likeable(self):
         # check if likeable
@@ -229,7 +276,6 @@ class Youtube(Platform):
         # get title of button inside element
         unlikes = like_button.find_elements(By.XPATH, '//button[@title="Unlike"]')
         likes = like_button.find_elements(By.XPATH, '//button[@title="I like this"]')
-        debug(f"LIKES: {len(likes)}, UNLIKES: {len(unlikes)}")
         if len(likes) > 0:
             return True
         if len(unlikes) > 0:
@@ -243,22 +289,28 @@ class Youtube(Platform):
         tube = MyTube()
         wait(2)
         opened = []
+        position = -1
         for v in range(len(videos)):
+            position += 1
             video = videos[v]
             video['elem'].click()
             video_info = tube.getVideoInfo(video['id'])
-            opened.append(video_info)
+            video_info['position'] = position
+            video = self.convertToObject(video_info, 'search')
+            opened.append(video)
             wait(3)
             if self.isAd():
-                error("IS AD")
-                wait(10)
+                debug('Handling ad')
+                self._handleAd()
             if self.likeable():
                 like_buttons = self.driver.find_elements(By.TAG_NAME, "ytd-video-renderer")
                 like_button = like_buttons[0]
                 like = like_button.find_elements(By.XPATH, '//button[@title="I like this"]')[0]
+                debug('Watching video for 30 seconds')
+                wait(30)
                 like.click()
                 wait(3)
-                return video_info, opened
+                return video, opened
             else:
                 debug('Already liked')
                 self.driver.back()
@@ -266,29 +318,68 @@ class Youtube(Platform):
 
         return None, opened
 
+    def convertToObject(self, post, origin):
+        obj = {
+            'id': post['id'],
+            'platform': "youtube",
+            'origin': origin,
+            'position': post.get('position', None),
+            'type': 'post',
+            'source': post.get('channel', ''),
+            'secondary_source': None,
+            'likes': post.get('likes', ''),
+            'comments': post.get('comments', ''),
+            'shares': None,
+            'views': post.get('views', ''),
+            'created_at': post.get('created', ''),
+            'title': post.get('title', ''),
+            'description': post.get('description', ''),
+            'media': None,
+            'url': post.get('url', ''),
+            'is_ad': None,
+        }
+        
+        return obj
 
+    def _handleAd(self):
+        while True:
+            try:
+                self.driver.find_element(By.XPATH, '//div[@class="ytp-ad-text"]') # Detect if there is an add.
+            except Exception:
+                return   # Return in case there is no ad
+            wait(5) # wait for the skip ad button to show up
+            try:
+                skip_ad_button = self.driver.find_element(By.CLASS_NAME, 'ytp-ad-skip-button-text')
+                skip_ad_button.click()
+                return
+            except Exception as e:
+                error('Cant skip')
+                pass
 
-    def dislikePost(self):
-        sleep(5)
-        elems = self.driver.find_elements(By.XPATH, '//yt-icon[@class="style-scope ytd-toggle-button-renderer"]')
-        debug(len(elems))
-        elems[1].click()
-        sleep(10000)
+            try:
+                skip_ad_button = self.driver.find_element(By.CLASS_NAME, 'ytp-ad-skip-button-container')
+                skip_ad_button.click()
+                return
+            except Exception as e:
+                error('Cant skip')
+                pass
 
-    def readComments(self):
-        sleep(5)
-        monkey.click()
-        monkey.scroll()
+    def chromeLogin(self):
+        self.turnOnHistory()
         pass
 
-
-
-
-
-
-
-
-
-
-
-        
+    def convertToSource(self, source, origin):
+        obj = {
+            'id': source['id'],
+            'platform': "youtube",
+            'origin': origin,
+            'position': source.get('position', None),
+            'type': source['type'],
+            'name': source.get('name', None),
+            'secondary_source': source.get('secondary_source', None),
+            'followers': source.get('subscribers', None),
+            'description': source.get('description', None),
+            'engagement': source.get('engagement', None),
+            'url': source['urlId'],
+        }
+        return obj

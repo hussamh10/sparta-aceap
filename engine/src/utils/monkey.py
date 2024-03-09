@@ -12,8 +12,14 @@ def pause(k=1000):
     t = randint(1, 100)/k
     sleep(t)
 
-def click():
-    gui.moveTo(200,200)
+def GotIt():
+    gui.moveTo(1140, 720)
+    pause()
+    gui.click()
+
+def click(x=200, y=200):
+    gui.moveTo(x, y)
+    pause()
     gui.click()
 
 def scroll(N=-100):
@@ -27,6 +33,9 @@ def space():
     gui.press('space')
     pause()
 
+def nextPressed():
+    gui.press('tab')
+
 def next():
     gui.press('tab')
     pause()
@@ -37,6 +46,10 @@ def back():
 
 def arrow_down():
     gui.press('down')
+    pause()
+
+def right():
+    gui.press('right')
     pause()
 
 def arrow_up():
@@ -63,3 +76,7 @@ def type(text):
     for char in text:
         gui.press(char)
         pause()
+
+def moveTo(x, y):
+    gui.moveTo(x, y)
+    pause()

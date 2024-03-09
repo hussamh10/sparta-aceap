@@ -1,0 +1,28 @@
+{
+    "treatments": [
+        {
+            "action": "like",
+            "topic": "oscars"
+        },
+        {
+            "action": "follow",
+            "topic": "oscars"
+        },
+        {
+            "action": "",
+            "topic": ""
+        }
+    ],
+    "replication": 2,
+    "days": 2,
+    "experiment_id": "xp7",
+    "platforms": [
+        "YouTube",
+        "Reddit",
+        "Twitter",
+        "Facebook"
+    ],
+    "email_template": "xp7aceap",
+    "database": "experiment.db",
+    "path": "C:\\Users\\hussa\\Desktop\\sparta-aceap\\engine\\exp7\\data"
+}

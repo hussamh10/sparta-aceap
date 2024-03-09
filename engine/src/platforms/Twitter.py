@@ -1,9 +1,12 @@
 import sys
 
 from utils.util import convertStringToNumber; sys.path.append('..')
+from utils.log import debug
+from utils.util import wait
 from platforms.Platform import Platform
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
 from utils.log import *
 from time import sleep
 import constants
@@ -35,6 +38,7 @@ class Twitter(Platform):
         monkey.enter()
         sleep(3000)
         error('Not implemented: createUserGoogle')
+
 
     def createUser(self, profile):
         # self.createUserGoogle(profile)
@@ -76,6 +80,33 @@ class Twitter(Platform):
         monkey.email()
         return True
 
+    def chromeLogin(self):
+        monkey.click(x=2300, y=230)
+        wait(6)
+        monkey.type('m')
+        monkey.next()
+        wait(1)
+        monkey.type('12')
+        monkey.next()
+        wait(1)
+        monkey.type('1993')
+        monkey.next()
+        wait(1)
+        monkey.enter()
+        wait(1)
+        monkey.next()
+        monkey.next()
+        monkey.space()
+        monkey.back()
+        monkey.back()
+        monkey.back()
+        wait(1)
+        monkey.enter()
+        wait(3)
+        self.driver.get('https://twitter.com/home')
+        wait(5)
+
+
     def isAd(self, tweet):
         ads = tweet.find_elements(By.XPATH, './/span[text()="Ad"]')
         if len(ads) > 0:
@@ -94,6 +125,51 @@ class Twitter(Platform):
             return False
         return True
 
+    def openPost(self, already_opened=[]):
+        sleep(3)
+        tweets = self.driver.find_elements(By.XPATH, '//article[@data-testid="tweet"]')
+        num_tweets = len(tweets)
+        liked = None
+        for i in range(num_tweets):
+            sleep(1)
+            tweets = self.driver.find_elements(By.XPATH, '//article[@data-testid="tweet"]')
+            if i >= len(tweets):
+                self.scrollDown()
+                sleep(2)
+                self.scrollDown()
+                tweets = self.driver.find_elements(By.XPATH, '//article[@data-testid="tweet"]')
+            tweet = tweets[i]
+            post = self.getPost(tweet)
+            post['position'] = i
+            post = self.convertToObject(post, 'search')
+
+            if post['id'] in already_opened:
+                debug('already opened')
+                continue
+
+            tweet_text = tweet.find_element(By.XPATH, './/div[@data-testid="tweetText"]')
+            tweet_text.click()
+            sleep(2)
+            debug('opened')
+            opened = post
+
+            if post['is_ad']:
+                debug('is ad')
+                continue
+
+            back = self.driver.find_elements(By.XPATH, '//div[@aria-label="Back"]')
+            if len(back) > 0:
+                back[0].click()
+            else:
+                raise Exception('Could not find back button')
+
+            sleep(2)
+            return opened
+
+        error("Returning last post")
+        return tweets[-1]
+
+
     def likePost(self):
         sleep(3)
         tweets = self.driver.find_elements(By.XPATH, '//article[@data-testid="tweet"]')
@@ -111,19 +187,19 @@ class Twitter(Platform):
             tweet = tweets[i]
             post = self.getPost(tweet)
             post['position'] = i
-
+            post = self.convertToObject(post, 'search')
             tweet_text = tweet.find_element(By.XPATH, './/div[@data-testid="tweetText"]')
             tweet_text.click()
             sleep(2)
             debug('opened')
             opened.append(post)
 
-            if post['isAd']:
+            if post['is_ad']:
                 debug('is ad')
                 continue
 
             if self.likable():
-                like = self.driver.find_element(By.XPATH, '//div[@aria-label="Like"]')
+                like = self.driver.find_element(By.XPATH, '//div[@data-testid="like"]')
                 like.click()
                 liked = post.copy()
                 debug('liked')
@@ -165,9 +241,32 @@ class Twitter(Platform):
             return True
         return False
 
+    def getUserInfo(self, userFollowed):
+        url = f'https://twitter.com/{userFollowed}'
+        self.loadPage(url)
+        wait(2)
+        user = dict()
+        user['id'] = userFollowed
+        user['url'] = url
+
+        followers = self.driver.find_element(By.XPATH, f'//a[@href="/{userFollowed}/verified_followers"]')
+        followers = followers.text.split(' ')[0]
+        followers = convertStringToNumber(followers)
+        user['followers'] = followers
+
+        username = self.driver.find_element(By.XPATH, '//div[@data-testid="UserName"]')
+        user['name'] = username.text.split('\n')[0]
+
+        try:
+            description = self.driver.find_element(By.XPATH, '//div[@data-testid="UserDescription"]')
+            user['description'] = description.text
+        except:
+            user['description'] = None
+            error('Could not find description')
+
+        return user
+
     def followUser(self):
-        # select span with text People
-        # click on it
         sleep(3)
         people = self.driver.find_element(By.XPATH, '//span[text()="People"]')
         people.click()
@@ -175,7 +274,9 @@ class Twitter(Platform):
 
         users = self.driver.find_elements(By.XPATH, '//div[@data-testid="UserCell"]')
         
+        position = -1
         for user in users:
+            position += 1
             username = ''
             links = user.find_elements(By.XPATH, './/a[@role="link"]')
             for link in links:
@@ -191,10 +292,14 @@ class Twitter(Platform):
                 debug(f'Already followed {username}')
                 continue
 
+            wait(2)
             follow_button = user.find_element(By.XPATH, './/span[text()="Follow"]')
             follow_button.click()
-            debug(f'Followed {username}')
-            return username
+            user = self.getUserInfo(username)
+            user['position'] = position
+            user['type'] = 'user'
+            user = self.convertToSource(user, 'search')
+            return user
 
         raise Exception('Could not find user to follow')
 
@@ -202,6 +307,7 @@ class Twitter(Platform):
     def getPost(self, tweet):
         post = dict()
         links = tweet.find_elements(By.XPATH, './/a[@role="link"]')
+
         for link in links:
             link = link.get_attribute('href')
             if '/analytics' in link and 'status' in link:
@@ -224,7 +330,6 @@ class Twitter(Platform):
             group = tweet.find_element(By.XPATH, './/div[@role="group"]')
             group = group.text.split('\n')
 
-        debug(post['id'])           
         replies = tweet.find_element(By.XPATH, './/div[@data-testid="reply"]').text
         post['comments'] = convertStringToNumber(replies)
         
@@ -254,21 +359,56 @@ class Twitter(Platform):
         external_links = tweet.find_elements(By.XPATH, './/a[@rel="noopener"]')
         if len(external_links) > 0:
             external_link = external_links[0].get_attribute('href')
-            post['attachment'] = 'external'
-            post['external_link'] = external_link
-        
-        print(post)
+            post['attachment'] = external_link
+
         return post
+
+    def loggedIn(self):
+        self.loadPage('https://twitter.com/messages')
+        wait(4)
+        # get url of the page
+        url = self.driver.current_url
+        if 'login' in url:
+            return False
+        else:
+            return True
 
     def getPagePosts(self, n):
         tweets = self.driver.find_elements(By.XPATH, '//article[@data-testid="tweet"]')
         posts = []
         for i, tweet in enumerate(tweets):
-            post = self.getPost(tweet)
+            try:
+                post = self.getPost(tweet)
+            except:
+                error('Could not get post')
+                continue
             post['position'] = i
             posts.append(post)
 
         return posts
+
+
+    def convertToObject(self, post, origin):
+        obj = {
+            'id': post['id'],
+            'platform': "twitter",
+            'origin': origin,
+            'position': post.get('position', None),
+            'type': 'post',
+            'source': post.get('username', None),
+            'secondary_source': None,
+            'likes': post.get('likes', None),
+            'comments': post.get('comments', None),
+            'shares': post.get('retweets', None),
+            'views': post.get('views', None),
+            'created_at': post.get('created_at', None),
+            'title': post.get('text', ''),
+            'description': post.get('description', ''),
+            'media': post.get('attachment', None),
+            'url': post.get('id', None),
+            'is_ad': post.get('isAd', False)
+        }
+        return obj
 
     def isJoined(self, l):
         joined = l.find_elements(By.XPATH, './/div[@aria-label="Following"]')
@@ -303,4 +443,19 @@ class Twitter(Platform):
             return listname
 
         raise Exception('Could not find list to join')
-        pass
+
+    def convertToSource(self, source, origin):
+        obj = {
+            'id': source['id'],
+            'platform': "twitter",
+            'origin': origin,
+            'position': source.get('position', None),
+            'type': source['type'],
+            'name': source.get('name', None),
+            'secondary_source': source.get('secondary_source', None),
+            'followers': source.get('followers', None),
+            'description': source.get('description', None),
+            'engagement': source.get('engagement', None),
+            'url': source['url'],
+        }
+        return obj

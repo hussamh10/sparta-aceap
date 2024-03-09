@@ -1,0 +1,21 @@
+{
+    "treatments": [
+        {
+            "action": "watch",
+            "topic": "video"
+        },
+        {
+            "action": "like",
+            "topic": "video"
+        }
+    ],
+    "replication": 3,
+    "days": 2,
+    "experiment_id": "ytit",
+    "platforms": [
+        "YouTube"
+    ],
+    "email_template": "spartan",
+    "database": "experiment.db",
+    "path": "C:\\Users\\hussa\\Desktop\\sparta-aceap\\engine\\youtubeinnertube\\data"
+}

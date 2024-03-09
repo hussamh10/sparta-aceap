@@ -8,12 +8,12 @@ from account_creation.ChromeSignIns import createProflie, checkProflies, loadBro
 
 
 email = 'aceap0003@gmail.com'
-userId = 'googlesnew44'
+userId = 'xp3aceap1'
 password = 'hehehahahoho'
 
 driver = loadBrowser(userId)
 wait(1)
-driver.get('https://www.twitter.com')
+driver.get('https://www.youtube.com')
 
 # click on button with id='continue-as'
 
